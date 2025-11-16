@@ -1,7 +1,0 @@
-/home/bokshi/http-library/build/CMakeFiles/httplibrary.dir
-/home/bokshi/http-library/build/CMakeFiles/edit_cache.dir
-/home/bokshi/http-library/build/CMakeFiles/rebuild_cache.dir
-/home/bokshi/http-library/build/CMakeFiles/list_install_components.dir
-/home/bokshi/http-library/build/CMakeFiles/install.dir
-/home/bokshi/http-library/build/CMakeFiles/install/local.dir
-/home/bokshi/http-library/build/CMakeFiles/install/strip.dir
