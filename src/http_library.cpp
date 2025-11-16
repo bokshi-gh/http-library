@@ -1,4 +1,5 @@
 #include "http_library.hpp"
+#include "http_codec.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <thread>
@@ -25,13 +26,25 @@ Server::get(std::string route, std::function<void(int)> route_handler) {
 }
 
 Server::handle_client(int client_fd) {
-    // check path
+    char buffer[1024]; // WARNING: size is only 1024
+    read(client_fd, buffer, 1024);
+    buffer[n] = '\0'; // null-terminate for safety
+
+    HTTPRequest request = decode_http_request(raw_request);
+    HTTPResponse response;
+
+    route_table[request.path](request, response);
+
+    std::string raw_response = encode_http_response(response);
+
+    send(client_fd, raw_response.c_str(), response.size(), 0);
+
+    close(client_fd);
 } 
 
 Server::listen(uint16_t port, std::function<void(int)> callback) {
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_len = sizeof(client_addr);
-    char buffer[1024];
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
