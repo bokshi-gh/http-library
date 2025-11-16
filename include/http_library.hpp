@@ -3,21 +3,25 @@
 #include <unordered_map>
 #include <functional>
 #include <cstdint>
+#include <string>
+
+class HTTPRequest;
+class HTTPResponse;
 
 class Server {
 private:
     int server_fd;
-    int client_fd;
     uint16_t port;
-    unordered_map<string, std::function<void(HTTPRequest, HTTPResponse)>> route_table;
+    std::unordered_map<std::string, std::function<void(HTTPRequest, HTTPResponse)>> route_table;
+
+    void handle_client(int client_fd);
 
 public:
     Server();
     ~Server();
 
-    get(std::string route, std::function<void(HTTPRequest, HTTPResponse)> route_handler);
-    post(std::string route, std::function<void(HTTPRequest, HTTPResponse)> route_handler);
+    void get(std::string route, std::function<void(HTTPRequest, HTTPResponse)> route_handler);
+    void post(std::string route, std::function<void(HTTPRequest, HTTPResponse)> route_handler);
 
-    listen(uint16_t port, std::function<void(int)> callback);
-    handle_client(int client_fd);
+    void listen(uint16_t port, std::function<void()> callback = nullptr);
 };
