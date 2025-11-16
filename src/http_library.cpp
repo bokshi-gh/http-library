@@ -1,10 +1,11 @@
-#include "http_library.hpp"
-#include "http_codec.hpp"
-#include <iostream>
+#include "../include/http_library.hpp"
+#include "../include/http_codec.hpp"
+#include <cstdio>
 #include <thread>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <iostream>
 
 Server::Server() : server_fd(-1), port(0) {}
 
@@ -12,7 +13,7 @@ Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(std::string route, std::function<void(HTTPRequest, HTTPResponse)> route_handler) {
+void Server::get(std::string route, std::function<void(HTTPRequest&, HTTPResponse&)> route_handler) {
     route_table[route] = route_handler;
 }
 
@@ -23,16 +24,23 @@ void Server::handle_client(int client_fd) {
         close(client_fd);
         return;
     }
+    buffer[n] = '\0';
 
     std::string raw_request(buffer, n); // this is redundant
     HTTPRequest request = decode_http_request(raw_request.c_str());
     HTTPResponse response;
 
+    // assign default value
+    response.version = "HTTP/1.1";
+    response.status_code = 200;
+    response.reason_phrase = "OK";
+
+    std::cout << route_table.size();
     if (route_table.find(request.path) != route_table.end()) {
         route_table[request.path](request, response);
     } else {
         response.status_code = 404;
-        response.body = "Not Found";
+        response.reason_phrase = "Not Found";
     }
 
     std::string raw_response = encode_http_response(response);
