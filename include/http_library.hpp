@@ -1,5 +1,6 @@
 #pragma once
 
+#include "http_codec.hpp"
 #include <unordered_map>
 #include <functional>
 #include <cstdint>
