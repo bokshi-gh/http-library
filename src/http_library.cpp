@@ -1,11 +1,8 @@
 #include "../include/http_library.hpp"
-#include "../include/http_codec.hpp"
-#include <cstdio>
-#include <thread>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <iostream>
+#include <thread>
 
 Server::Server() : server_fd(-1), port(0) {}
 
@@ -13,43 +10,11 @@ Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(std::string route, std::function<void(HTTPRequest&, HTTPResponse&)> route_handler) {
+void Server::get(string route, function<void(HTTPRequest&, HTTPResponse&)> route_handler) {
     route_table[route] = route_handler;
 }
 
-void Server::handle_client(int client_fd) {
-    char buffer[4096];
-    int n = read(client_fd, buffer, sizeof(buffer));
-    if (n <= 0) {
-        close(client_fd);
-        return;
-    }
-    buffer[n] = '\0';
-
-    std::string raw_request(buffer, n); // this is redundant
-    HTTPRequest request = decode_http_request(raw_request.c_str());
-    HTTPResponse response;
-
-    // assign default value
-    response.version = "HTTP/1.1";
-    response.status_code = 200;
-    response.reason_phrase = "OK";
-
-    std::cout << route_table.size();
-    if (route_table.find(request.path) != route_table.end()) {
-        route_table[request.path](request, response);
-    } else {
-        response.status_code = 404;
-        response.reason_phrase = "Not Found";
-    }
-
-    std::string raw_response = encode_http_response(response);
-    send(client_fd, raw_response.c_str(), raw_response.size(), 0);
-
-    close(client_fd);
-}
-
-void Server::listen(uint16_t port, std::function<void()> callback) {
+void Server::listen(uint16_t port, function<void()> callback) {
     this->port = port;
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -84,6 +49,36 @@ void Server::listen(uint16_t port, std::function<void()> callback) {
             continue;
         }
 
-        std::thread(&Server::handle_client, this, client_fd).detach();
+        thread(&Server::handle_client, this, client_fd).detach();
     }
+}
+
+void Server::handle_client(int client_fd) {
+    char buffer[4096]; // WARNING: buffer can't handle payload greater than 4096
+    int n = read(client_fd, buffer, sizeof(buffer));
+    if (n <= 0) {
+        close(client_fd);
+        return;
+    }
+    buffer[n] = '\0'; // since read function doesn't null terminate the array we have to do it manually
+
+    HTTPRequest request = decode_http_request(buffer);
+    HTTPResponse response;
+
+    // assign default value
+    response.version = "HTTP/1.1";
+    response.status_code = 200;
+    response.reason_phrase = "OK";
+
+    if (route_table.find(request.path) != route_table.end()) {
+        route_table[request.path](request, response);
+    } else {
+        response.status_code = 404;
+        response.reason_phrase = "Not Found";
+    }
+
+    string raw_response = encode_http_response(response);
+    send(client_fd, raw_response.c_str(), raw_response.size(), 0);
+
+    close(client_fd);
 }
