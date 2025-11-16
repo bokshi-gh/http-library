@@ -20,6 +20,14 @@ Server::~Server() {
     close(client_fd);
 }
 
+Server::get(std::string route, std::function<void(int)> route_handler) {
+    route_table[route] = route_handler;
+}
+
+Server::handle_client(int client_fd) {
+    // check path
+} 
+
 Server::listen(uint16_t port, std::function<void(int)> callback) {
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_len = sizeof(client_addr);

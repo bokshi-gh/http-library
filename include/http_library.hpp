@@ -8,7 +8,7 @@ private:
     int server_fd;
     int client_fd;
     uint16_t port;
-    unordered_map route_table
+    unordered_map route_table;
 
 public:
     Server();
@@ -17,6 +17,6 @@ public:
     get(std::string route, std::function<void(int)> route_handler);
     post(std::string route, std::function<void(int)> route_handler);
 
-    handle_client(int client_fd);
     listen(uint16_t port, std::function<void(int)> callback);
+    handle_client(int client_fd);
 }
