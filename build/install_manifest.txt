@@ -1,0 +1,4 @@
+/home/bokshi/http-library/build/../dist/lib/libhttplibrary.a
+/home/bokshi/http-library/build/../dist/include/http_library.hpp
+/home/bokshi/http-library/build/../dist/include/http_codec.hpp
+/home/bokshi/http-library/build/../dist/docs/README.md

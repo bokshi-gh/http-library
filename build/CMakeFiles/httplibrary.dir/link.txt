@@ -1,0 +1,2 @@
+/usr/sbin/ar qc libhttplibrary.a CMakeFiles/httplibrary.dir/src/http_library.cpp.o CMakeFiles/httplibrary.dir/src/http_codec.cpp.o
+/usr/sbin/ranlib libhttplibrary.a
