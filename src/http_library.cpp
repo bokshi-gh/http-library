@@ -1,6 +1,7 @@
 #include "http_library.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <thread>
 
 Server::Server() {
     struct sockaddr_in server_addr, client_addr;
@@ -54,6 +55,9 @@ Server::listen(uint16_t port, std::function<void(int)> callback) {
         }
 
         // client_addr.sin_addr
+
+        std::thread t(handle_client, int client_fd);
+
         close(client_fd);
     }
 }
