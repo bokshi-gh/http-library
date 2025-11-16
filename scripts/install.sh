@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e  # Exit immediately if a command fails
 
-# Variables
 REPO_URL="https://github.com/bokshi-gh/http-library"
 TMP_DIR=$(mktemp -d)
 BUILD_DIR="$TMP_DIR/build"

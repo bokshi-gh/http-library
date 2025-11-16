@@ -1,4 +1,4 @@
-#include "../include/http_codec.hpp"
+#include "http_codec.hpp"
 #include <cstring>
 
 HTTPRequest decode_http_request(const char* raw_request) {
