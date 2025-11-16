@@ -20,7 +20,7 @@ bash <(curl -s https://raw.githubusercontent.com/bokshi-gh/http-library/main/scr
 
 ## Usage
 
-- Example code is available in [**`src/main.cpp`**](https://github.com/bokshi/http-library/blob/main/src/main.cpp) file demonstrating how to use the library.
+- Example code is available in [**`src/main.cpp`**](https://github.com/bokshi-gh/http-library/blob/main/src/main.cpp) file demonstrating how to use the library.
 
 - Add the header in your C++ project:
 ```c++
