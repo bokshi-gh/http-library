@@ -24,8 +24,8 @@ void Server::handle_client(int client_fd) {
         return;
     }
 
-    std::string raw_request(buffer, n);
-    HTTPRequest request = decode_http_request(raw_request);
+    std::string raw_request(buffer, n); // this is redundant
+    HTTPRequest request = decode_http_request(raw_request.c_str());
     HTTPResponse response;
 
     if (route_table.find(request.path) != route_table.end()) {
