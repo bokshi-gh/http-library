@@ -15,8 +15,8 @@ Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(string route, function<void(HTTPRequest &, HTTPResponse &)> route_handler) {
-    route_table[route] = route_handler;
+void Server::get(string endpoint, function<void(HTTPRequest &, HTTPResponse &)> endpoint_handler) {
+    endpoint_table[endpoint] = endpoint_handler;
 }
 
 void Server::listen(uint16_t port, function<void()> callback) {
@@ -50,7 +50,7 @@ void Server::handle_client(int client_fd) {
     char buffer[4096]; // WARNING: buffer can't handle payload greater than 4096
     int n = read(client_fd, buffer, sizeof(buffer));
     if (n <= 0) { close(client_fd); return; }
-    buffer[n] = '\0'; // since read doesn't null terminate
+    buffer[n] = '\0';
 
     HTTPRequest request = decode_http_request(buffer);
     HTTPResponse response;
@@ -76,12 +76,17 @@ Client::Client(string hostname) : hostname(hostname), port(80) {}
 
 Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) {}
 
-HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<std::string, std::string> headers) {
+HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<std::string, std::string>& headers) {
     string raw_request = "GET " + endpoint + " HTTP/1.1\r\n";
+    if(headers.find("Host") == headers.end()) raw_request += "Host: " + hostname + "\r\n";
+    if(headers.find("Connection") == headers.end()) raw_request += "Connection: keep-alive" + "\r\n";
+    if(headers.find("User-Agent") == headers.end()) raw_request += "User-Agent: HTTP-Library/1.0.0 (C++ client)" + "\r\n";
+    if(headers.find("Accept") == headers.end()) raw_request += "Accept: */*" + "\r\n";
 
     for (auto header : headers) {
         raw_request += header.first + ": " + header.second + "\r\n";
     }
+    
     raw_request += "\r\n";
 
     HTTPResponse res{};
