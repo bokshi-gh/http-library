@@ -1,17 +1,22 @@
-#include "http_library.hpp"
+#include <cstdlib>
+#include <dotenv.hpp>
+#include <http_codec.hpp>
+#include <http_library.hpp>
 #include <iostream>
+#include <string>
 
-int main() {
-    Server srv;
+int main (int argc, char *argv[]) {
+        dotenv::init();
+        std::string PORT = dotenv::getenv("PORT");
 
-    srv.get("/monk", [](HTTPRequest& request, HTTPResponse& response) {
-        response.headers["Content-Type"] = "text/html";
-        response.body = "<p>a monk in a cloud</p>";
-    });
-
-    srv.listen(8080, []() {
-		std::cout << "server is listening on port 8080";
-    });
-
-    return 0;
+        Server server;
+        server.get("/monk", [](HTTPRequest &req, HTTPResponse &res) {
+                res.headers["Content-Type"] = "text/html";
+                res.body = "<p>a monk in a cloud!</p>";
+        });
+        server.listen(atoi(PORT.c_str()), [&]() {
+                std::cout << "server is listening on port" << atoi(PORT.c_str());
+        });
+	
+        return 0;
 }
