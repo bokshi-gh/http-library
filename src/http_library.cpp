@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
+#include <iostream>
 
 Server::Server() : server_fd(-1), port(0) {}
 
