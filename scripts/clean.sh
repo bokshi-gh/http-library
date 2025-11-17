@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo -e "${GREEN}[CLEANING BUILD AND DIST DIRECTORIES]${NC}"
 rm -rfv build dist
