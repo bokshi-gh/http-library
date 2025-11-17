@@ -77,14 +77,14 @@ void Server::handle_client(int client_fd) {
     response.headers["Date"] = getHTTPDate();
     response.headers["Cache-Control"] = "no-cache";
     
-    if (route_table.find(request.path) != route_table.end()) {
-        route_table[request.path](request, response);
+    if (endpoint_table.find(request.path) != endpoint_table.end()) {
+        endpoint_table[request.path](request, response);
     } else {
         response.status_code = 404;
         response.reason_phrase = "Not Found";
     }
 
-    response.headers["Content-Length"] = to_string(reponse.body.length());
+    response.headers["Content-Length"] = to_string(response.body.length());
 
     string raw_response = encode_http_response(response);
     send(client_fd, raw_response.c_str(), raw_response.size(), 0);
