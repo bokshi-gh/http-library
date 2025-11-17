@@ -20,7 +20,18 @@ public:
     ~Server();
 
     void get(string route, function<void(HTTPRequest&, HTTPResponse&)> route_handler);
-    void post(string route, function<void(HTTPRequest&, HTTPResponse&)> route_handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr); // callback parameter becomes nullptr if second argument is not passed when calling the listen function
+};
+
+class Client {
+private:
+	string hostname;
+	uint16_t port;
+
+public:
+	Client(string hostname);
+	Client(string hostname, uint16_t port);
+
+	HTTPResponse get(const std::string endpoint, const std::unordered_map<std::string, std::string> headers = {});
 };

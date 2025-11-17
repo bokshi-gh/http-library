@@ -1,9 +1,13 @@
-#include "http_library.hpp"
+#include "../include/http_library.hpp"
+#include <cstdint>
+#include <string>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
 #include <iostream>
+#include <cstring>
+#include <netdb.h>
 
 Server::Server() : server_fd(-1), port(0) {}
 
@@ -86,3 +90,56 @@ void Server::handle_client(int client_fd) {
 
     close(client_fd);
 }
+
+Client::Client(string hostname) : hostname(hostname), port(80) {}
+
+Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) {}
+
+HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<std::string, std::string> headers) {
+	string raw_request = "GET " + endpoint + " HTTP/1.1";
+	raw_request += "\r\n";
+	
+	for (auto header: headers) {
+		raw_request += header.first + ": " + header.second;
+		raw_request += "\r\n";
+	}
+
+	raw_request += "\r\n";
+
+	HTTPResponse res = {0, NULL};
+    
+        struct hostent *host = gethostbyname(hostname.c_str());
+        if (!host) {
+            fprintf(stderr, "Unknown host: %s\n", hostname);
+            return res;
+        }
+
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) {
+            perror("Socket creation failed");
+            return res;
+        }
+
+        struct sockaddr_in server;
+        server.sin_family = AF_INET;
+        server.sin_port = htons(port);
+        server.sin_addr = *((struct in_addr *)host->h_addr);
+        memset(&(server.sin_zero), 0, 8);
+
+        if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
+            perror("Connect failed");
+            close(sock);
+            return res;
+        }
+
+	send(sock, raw_request.c_str(), raw_request.length(), 0);
+
+	char buffer[4096];
+	int bytes = recv(sock, buffer, sizeof(buffer)-1, 0);
+	buffer[bytes] = '\0';
+
+	close(sock);
+
+        return decode_http_response(buffer);
+}
+
