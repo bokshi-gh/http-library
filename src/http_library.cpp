@@ -8,6 +8,19 @@
 #include <iostream>
 #include <cstring>
 #include <netdb.h>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+
+string getHTTPDate() {
+    time_t now = std::time(nullptr);
+    tm gm_time{};
+    gmtime_r(&now, &gm_time);
+
+    char buf[30];
+    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
+    return std::string(buf);
+}
 
 Server::Server() : server_fd(-1), port(0) {}
 
@@ -58,13 +71,20 @@ void Server::handle_client(int client_fd) {
     response.version = "HTTP/1.1";
     response.status_code = 200;
     response.reason_phrase = "OK";
-
+    response.headers["Content-Type"] = "text/plain";
+    response.headers["Connection"] = "keep-alive";
+    response.headers["Server"] = "HTTP-Library/1.0.0 (C++ server)";
+    response.headers["Date"] = getHTTPDate();
+    response.headers["Cache-Control"] = "no-cache";
+    
     if (route_table.find(request.path) != route_table.end()) {
         route_table[request.path](request, response);
     } else {
         response.status_code = 404;
         response.reason_phrase = "Not Found";
     }
+
+    response.headers["Content-Length"] = to_string(reponse.body.length());
 
     string raw_response = encode_http_response(response);
     send(client_fd, raw_response.c_str(), raw_response.size(), 0);
