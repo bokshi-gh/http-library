@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <cstdlib>
 
 namespace dotenv {
 
@@ -43,7 +44,9 @@ namespace dotenv {
     inline std::string getenv(const std::string& key) {
         if (envmap.find(key) != envmap.end())
             return envmap[key];
-        return "";
+        else {
+            std::cerr << "FATAL: Environment variable '" << key << "' not found!" << "\n";
+            std::exit(EXIT_FAILURE);
+        }
     }
 }
-
