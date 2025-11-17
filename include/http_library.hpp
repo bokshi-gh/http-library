@@ -35,5 +35,5 @@ public:
 	Client(string hostname);
 	Client(string hostname, uint16_t port);
 
-	HTTPResponse get(const std::string endpoint, const std::unordered_map<std::string, std::string> headers = {});
+	HTTPResponse get(const string endpoint, const unordered_map<string, string> headers = {});
 };
