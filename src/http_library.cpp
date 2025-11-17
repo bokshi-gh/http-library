@@ -1,4 +1,4 @@
-#include "../include/http_library.hpp"
+#include "http_library.hpp"
 #include <cstdint>
 #include <string>
 #include <sys/socket.h>
@@ -15,7 +15,7 @@ Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(string route, function<void(HTTPRequest&, HTTPResponse&)> route_handler) {
+void Server::get(string route, function<void(HTTPRequest &, HTTPResponse &)> route_handler) {
     route_table[route] = route_handler;
 }
 
@@ -23,39 +23,24 @@ void Server::listen(uint16_t port, function<void()> callback) {
     this->port = port;
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) {
-        perror("socket failed");
-        return;
-    }
+    if (server_fd < 0) { perror("socket failed"); return; }
 
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(port);
 
-    if (bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("bind failed");
-        return;
-    }
+    if (bind(server_fd, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) { perror("bind failed"); return; }
 
-    if (::listen(server_fd, 5) < 0) {
-        perror("listen failed");
-        return;
-    }
+    if (::listen(server_fd, 5) < 0) { perror("listen failed"); return; }
 
-    if (callback) {
-        callback();
-        cout.flush();
-    }
+    if (callback) { callback(); cout.flush(); }
 
     while (true) {
         sockaddr_in client_addr{};
         socklen_t client_len = sizeof(client_addr);
-        int client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
-        if (client_fd < 0) {
-            perror("accept failed");
-            continue;
-        }
+        int client_fd = accept(server_fd, (sockaddr *)&client_addr, &client_len);
+        if (client_fd < 0) { perror("accept failed"); continue; }
 
         thread(&Server::handle_client, this, client_fd).detach();
     }
@@ -64,16 +49,12 @@ void Server::listen(uint16_t port, function<void()> callback) {
 void Server::handle_client(int client_fd) {
     char buffer[4096]; // WARNING: buffer can't handle payload greater than 4096
     int n = read(client_fd, buffer, sizeof(buffer));
-    if (n <= 0) {
-        close(client_fd);
-        return;
-    }
-    buffer[n] = '\0'; // since read function doesn't null terminate the array we have to do it manually
+    if (n <= 0) { close(client_fd); return; }
+    buffer[n] = '\0'; // since read doesn't null terminate
 
     HTTPRequest request = decode_http_request(buffer);
     HTTPResponse response;
 
-    // assign default value
     response.version = "HTTP/1.1";
     response.status_code = 200;
     response.reason_phrase = "OK";
@@ -96,50 +77,36 @@ Client::Client(string hostname) : hostname(hostname), port(80) {}
 Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) {}
 
 HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<std::string, std::string> headers) {
-	string raw_request = "GET " + endpoint + " HTTP/1.1";
-	raw_request += "\r\n";
-	
-	for (auto header: headers) {
-		raw_request += header.first + ": " + header.second;
-		raw_request += "\r\n";
-	}
+    string raw_request = "GET " + endpoint + " HTTP/1.1\r\n";
 
-	raw_request += "\r\n";
+    for (auto header : headers) {
+        raw_request += header.first + ": " + header.second + "\r\n";
+    }
+    raw_request += "\r\n";
 
-	HTTPResponse res = {0, NULL};
-    
-        struct hostent *host = gethostbyname(hostname.c_str());
-        if (!host) {
-            fprintf(stderr, "Unknown host: %s\n", hostname);
-            return res;
-        }
+    HTTPResponse res{};
 
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock < 0) {
-            perror("Socket creation failed");
-            return res;
-        }
+    struct hostent *host = gethostbyname(hostname.c_str());
+    if (!host) { fprintf(stderr, "Unknown host: %s\n", hostname.c_str()); return res; }
 
-        struct sockaddr_in server;
-        server.sin_family = AF_INET;
-        server.sin_port = htons(port);
-        server.sin_addr = *((struct in_addr *)host->h_addr);
-        memset(&(server.sin_zero), 0, 8);
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) { perror("Socket creation failed"); return res; }
 
-        if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
-            perror("Connect failed");
-            close(sock);
-            return res;
-        }
+    struct sockaddr_in server{};
+    server.sin_family = AF_INET;
+    server.sin_port = htons(port);
+    server.sin_addr = *((struct in_addr *)host->h_addr);
+    memset(&(server.sin_zero), 0, 8);
 
-	send(sock, raw_request.c_str(), raw_request.length(), 0);
+    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) { perror("Connect failed"); close(sock); return res; }
 
-	char buffer[4096];
-	int bytes = recv(sock, buffer, sizeof(buffer)-1, 0);
-	buffer[bytes] = '\0';
+    send(sock, raw_request.c_str(), raw_request.length(), 0);
 
-	close(sock);
+    char buffer[4096];
+    int bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
+    buffer[bytes] = '\0';
 
-        return decode_http_response(buffer);
+    close(sock);
+
+    return decode_http_response(buffer);
 }
-
