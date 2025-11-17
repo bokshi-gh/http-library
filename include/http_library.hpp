@@ -7,13 +7,16 @@
 #include <string>
 #include <functional>
 
+using namespace std;
+
 class Server {
 private:
     int server_fd;
     uint16_t port;
     unordered_map<string, function<void(HTTPRequest&, HTTPResponse&)>> endpoint_table;
 
-    void handle_client(int client_fd);
+    string getHTTPDate();
+	void handle_client(int client_fd);
 
 public:
     Server();
