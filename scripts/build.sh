@@ -1,5 +1,5 @@
 GREEN='\033[0;32m'
-NC='\033[0m' # No Color (reset)
+NC='\033[0m'
 
 rm -rf build
 mkdir -p build
@@ -15,4 +15,3 @@ echo ""
 
 echo -e "${GREEN}[INSTALLING THE PROJECT]${NC}"
 cmake --install . --prefix ../dist
-
