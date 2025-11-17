@@ -1,9 +1,9 @@
-#include <cstdlib>
-#include <dotenv.hpp>
-#include <http_codec.hpp>
 #include <http_library.hpp>
+#include <http_codec.hpp>
+#include <dotenv.hpp>
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 int main (int argc, char *argv[]) {
         dotenv::init();
