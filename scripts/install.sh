@@ -24,4 +24,4 @@ sudo make install
 echo "Cleaning up temporary folder..."
 rm -rf "$TMP_DIR"
 
-echo "HTTPLibrary installed successfully!"
+echo "HTTP Library installed successfully!"
