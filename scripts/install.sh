@@ -1,4 +1,5 @@
-#!/bin/bash
+#! /bin/bash
+
 set -e  # Exit immediately if a command fails
 
 REPO_URL="https://github.com/bokshi-gh/http-library"
