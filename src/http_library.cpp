@@ -96,7 +96,7 @@ Client::Client(string hostname) : hostname(hostname), port(80) {}
 
 Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) {}
 
-HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<std::string, std::string>& headers) {
+HTTPResponse Client::get(const string endpoint, const unordered_map<string, string> headers) {
     string raw_request = "GET " + endpoint + " HTTP/1.1\r\n";
     if(headers.find("Host") == headers.end()) raw_request += "Host: " + hostname + "\r\n";
     if(headers.find("Connection") == headers.end()) raw_request += "Connection: keep-alive" + "\r\n";
