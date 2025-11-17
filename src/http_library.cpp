@@ -38,7 +38,10 @@ void Server::listen(uint16_t port, function<void()> callback) {
         return;
     }
 
-    if (callback) callback();
+    if (callback) {
+        callback();
+        cout.flush();
+    }
 
     while (true) {
         sockaddr_in client_addr{};
