@@ -1,6 +1,7 @@
 #pragma once
 
 #include "http_codec.hpp"
+#include "dotenv.hpp"
 #include <unordered_map>
 #include <functional>
 #include <cstdint>
