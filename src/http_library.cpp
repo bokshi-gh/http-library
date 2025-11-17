@@ -89,13 +89,13 @@ HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<st
     
     raw_request += "\r\n";
 
-    HTTPResponse res{};
+    HTTPResponse empty_response{};
 
     struct hostent *host = gethostbyname(hostname.c_str());
-    if (!host) { fprintf(stderr, "Unknown host: %s\n", hostname.c_str()); return res; }
+    if (!host) { fprintf(stderr, "Unknown host: %s\n", hostname.c_str()); return empty_response; }
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) { perror("Socket creation failed"); return res; }
+    if (sock < 0) { perror("Socket creation failed"); return empty_response; }
 
     struct sockaddr_in server{};
     server.sin_family = AF_INET;
@@ -103,13 +103,15 @@ HTTPResponse Client::get(const std::string endpoint, const std::unordered_map<st
     server.sin_addr = *((struct in_addr *)host->h_addr);
     memset(&(server.sin_zero), 0, 8);
 
-    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) { perror("Connect failed"); close(sock); return res; }
+    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) { perror("Connect failed"); close(sock); return empty_response; }
 
     send(sock, raw_request.c_str(), raw_request.length(), 0);
 
     char buffer[4096];
     int bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
     buffer[bytes] = '\0';
+
+    if(bytes <= 0) { close(sock); return empty_response; }
 
     close(sock);
 
