@@ -2,11 +2,10 @@
 
 #include "http_codec.hpp"
 #include "dotenv.hpp"
-#include <unordered_map>
-#include <functional>
 #include <cstdint>
+#include <unordered_map>
 #include <string>
-
+#include <functional>
 
 class Server {
 private:
