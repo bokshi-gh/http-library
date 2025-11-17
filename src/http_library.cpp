@@ -84,7 +84,7 @@ void Server::handle_client(int client_fd) {
         response.reason_phrase = "Not Found";
     }
 
-    response.headers["Content-Length"] = to_string(response.body.length());
+    if(response.headers.find("Content-Type") == response.headers.end()) response.headers["Content-Length"] = to_string(response.body.length());
 
     string raw_response = encode_http_response(response);
     send(client_fd, raw_response.c_str(), raw_response.size(), 0);
