@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <sstream>
 
-string getHTTPDate() {
+string Server::getHTTPDate() {
     time_t now = std::time(nullptr);
     tm gm_time{};
     gmtime_r(&now, &gm_time);
