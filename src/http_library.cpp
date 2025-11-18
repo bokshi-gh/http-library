@@ -143,6 +143,8 @@ HTTPResponse Client::get(const string endpoint, const unordered_map<string, stri
         }
     }
 
+    cout << data << "\n";
+
     close(sock);
 
     return decode_http_response(data.c_str());
