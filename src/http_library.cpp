@@ -134,17 +134,10 @@ HTTPResponse Client::get(const string endpoint, const unordered_map<string, stri
             data.append(buffer, bytes);
         } else if (bytes == 0) {
             close(sock); 
-            exit(EXIT_FAILURE);
-        } else {
-            if (errno == EINTR) continue;   // interrupted? retry
-            perror("recv");
-            close(sock); 
-            exit(EXIT_FAILURE);
+            break;
         }
     }
-
-    cout << data << "\n";
-
+    
     close(sock);
 
     return decode_http_response(data.c_str());
