@@ -97,7 +97,7 @@ Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) 
 HTTPResponse Client::get(const string endpoint, const unordered_map<string, string> headers) {
     string raw_request = "GET " + endpoint + " HTTP/1.1\r\n";
     if(headers.find("Host") == headers.end()) raw_request = raw_request + "Host: " + hostname + "\r\n";
-    if(headers.find("Connection") == headers.end()) raw_request = raw_request + "Connection: keep-alive" + "\r\n";
+    if(headers.find("Connection") == headers.end()) raw_request = raw_request + "Connection: close" + "\r\n";
     if(headers.find("User-Agent") == headers.end()) raw_request = raw_request + "User-Agent: HTTP-Library/1.0.0 (C++ client)" + "\r\n";
     if(headers.find("Accept") == headers.end()) raw_request = raw_request + "Accept: */*" + "\r\n";
 
