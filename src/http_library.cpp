@@ -126,12 +126,23 @@ HTTPResponse Client::get(const string endpoint, const unordered_map<string, stri
     send(sock, raw_request.c_str(), raw_request.length(), 0);
 
     char buffer[4096];
-    int bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
-    buffer[bytes] = '\0';
-
-    if(bytes <= 0) { close(sock); return empty_response; }
+    string data;
+    while (true) {
+        ssize_t bytes = recv(sockfd, buffer, sizeof(buffer), 0);
+        if (bytes > 0) {
+            data.append(buffer, bytes);
+        } else if (bytes == 0) {
+            close(sock); 
+            exit(EXIT_FAILURE);
+        } else {
+            if (errno == EINTR) continue;   // interrupted? retry
+            perror("recv");
+            close(sock); 
+            exit(EXIT_FAILURE);
+        }
+    }
 
     close(sock);
 
-    return decode_http_response(buffer);
+    return decode_http_response(data.c_str());
 }
