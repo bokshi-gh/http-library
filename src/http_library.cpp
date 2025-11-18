@@ -129,11 +129,15 @@ HTTPResponse Client::get(const string endpoint, const unordered_map<string, stri
     string data;
     while (true) {
         cout << "in while loop\n";
-        ssize_t bytes = recv(sock, buffer, sizeof(buffer), 0);
         if (bytes > 0) {
             data.append(buffer, bytes);
         } else if (bytes == 0) {
-            close(sock); 
+            // connection closed
+            break;
+        } else {
+            // error
+            if (errno == EINTR) continue;   // interrupted? retry
+            perror("recv");
             break;
         }
     }
