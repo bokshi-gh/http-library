@@ -130,7 +130,7 @@ HTTPResponse Client::get(const string endpoint, const unordered_map<string, stri
     while (true) {
         cout << "in while loop\n";
         if (bytes > 0) {
-            ssize_t bytes = recv(sockfd, buffer, sizeof(buffer), 0);
+            ssize_t bytes = recv(sock, buffer, sizeof(buffer), 0);
             data.append(buffer, bytes);
         } else if (bytes == 0) {
             // connection closed
