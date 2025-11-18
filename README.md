@@ -32,3 +32,7 @@ bash <(curl -s https://raw.githubusercontent.com/bokshi-gh/http-library/main/scr
 ```bash
 g++ main.cpp -lhttplibrary -o main
 ```
+
+> [!WARNING]
+> If you are thinking of using this library(i know noone will). Don't use this for the production.
+> Library is bug prone and unstable due to the lack of error handling in edge cases.
