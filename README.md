@@ -34,7 +34,7 @@ g++ main.cpp -lhttplibrary -o main
 ```
 
 > [!WARNING]
-> If you are thinking of using this library(i know no one will). Don't use this in the production.
+> If you are thinking of using this library(i know no one will). Don't use it in the production.
 >
 > Library is bug prone and unstable due to the lack of error handling in edge cases.
 >
