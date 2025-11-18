@@ -74,7 +74,7 @@ void Server::handle_client(int client_fd) {
     response.headers["Server"] = "HTTP-Library/1.0.0 (C++ server)";
     response.headers["Date"] = getHTTPDate();
     response.headers["Cache-Control"] = "no-cache";
-    
+
     if (endpoint_table.find(request.path) != endpoint_table.end()) {
         endpoint_table[request.path](request, response);
     } else {
@@ -97,14 +97,14 @@ Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) 
 HTTPResponse Client::get(const string endpoint, const unordered_map<string, string> headers) {
     string raw_request = "GET " + endpoint + " HTTP/1.1\r\n";
     if(headers.find("Host") == headers.end()) raw_request = raw_request + "Host: " + hostname + "\r\n";
-    if(headers.find("Connection") == headers.end()) raw_request = raw_request + "Connection: close" + "\r\n";
+    if(headers.find("Connection") == headers.end()) raw_request = raw_request + "Connection: keep-alive" + "\r\n";
     if(headers.find("User-Agent") == headers.end()) raw_request = raw_request + "User-Agent: HTTP-Library/1.0.0 (C++ client)" + "\r\n";
     if(headers.find("Accept") == headers.end()) raw_request = raw_request + "Accept: */*" + "\r\n";
 
     for (auto header : headers) {
         raw_request += header.first + ": " + header.second + "\r\n";
     }
-    
+
     raw_request += "\r\n";
 
     HTTPResponse empty_response{};
@@ -126,26 +126,12 @@ HTTPResponse Client::get(const string endpoint, const unordered_map<string, stri
     send(sock, raw_request.c_str(), raw_request.length(), 0);
 
     char buffer[4096];
-    string data;
-    while (true) {
-        cout << "in while loop\n";
-        ssize_t bytes = recv(sock, buffer, sizeof(buffer), 0);
-        if (bytes > 0) {
-            data.append(buffer, bytes);
-        } else if (bytes == 0) {
-            // connection closed
-            break;
-        } else {
-            // error
-            if (errno == EINTR) continue;   // interrupted? retry
-            perror("recv");
-            break;
-        }
-    }
+    int bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
+    buffer[bytes] = '\0';
 
-    cout << "out\n";
-    
+    if(bytes <= 0) { close(sock); return empty_response; }
+
     close(sock);
 
-    return decode_http_response(data.c_str());
+    return decode_http_response(buffer);
 }
