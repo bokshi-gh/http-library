@@ -1,6 +1,5 @@
 #include "http_library.hpp"
 #include <cstdint>
-#include <http_codec.hpp>
 #include <sstream>
 #include <string>
 #include <sys/socket.h>
@@ -12,21 +11,11 @@
 #include <netdb.h>
 #include <ctime>
 
-string Server::getHTTPDate() {
-    time_t now = std::time(nullptr);
-    tm gm_time{};
-    gmtime_r(&now, &gm_time);
-
-    char buf[30];
-    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
-    return std::string(buf);
-}
-
 bool match_pattern(const string pattern, const string path, HTTPRequest &request) {
 	stringstream p(pattern), q(path);
 	string pp, qq;
 
-	while (getline(p, pp, '/') && std::getline(q, qq, '/')) {
+	while (getline(p, pp, '/') && getline(q, qq, '/')) {
 		if (pp.size() > 0 && pp[0] == ':') {
 			request.parameters[pp.substr(1)] = qq;
 		} else if (pp != qq) {
@@ -37,14 +26,24 @@ bool match_pattern(const string pattern, const string path, HTTPRequest &request
 	return p.eof() && q.eof();
 }
 
+string Server::getHTTPDate() {
+    time_t now = std::time(nullptr);
+    tm gm_time{};
+    gmtime_r(&now, &gm_time);
+
+    char buf[30];
+    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
+    return std::string(buf);
+}
+
 Server::Server() : server_fd(-1), port(0) {}
 
 Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(string path, function<void(HTTPRequest &, HTTPResponse &)> pattern_handler) {
-    pattern_table[path] = pattern_handler;
+void Server::get(string pattern, function<void(HTTPRequest &, HTTPResponse &)> pattern_handler) {
+    pattern_table[pattern] = pattern_handler;
 }
 
 void Server::listen(uint16_t port, function<void()> callback) {
@@ -93,9 +92,9 @@ void Server::handle_client(int client_fd) {
     response.headers["Cache-Control"] = "no-cache";
 
     bool found = false;
-    for (auto &pattern : pattern_table) {
-		if(match_pattern(pattern.first, request.path, request)) {
-			pattern_table[pattern.first](request, response);
+    for (auto &pair : pattern_table) {
+		if(match_pattern(pair.first, request.path, request)) {
+			pattern_table[pair.first](request, response);
 			found = true;
 			break;
 		}

@@ -15,8 +15,9 @@ private:
     uint16_t port;
     unordered_map<string, function<void(HTTPRequest&, HTTPResponse&)>> pattern_table;
 
+    bool match_pattern(const string pattern, const string path, HTTPRequest &request);
     string getHTTPDate();
-	void handle_client(int client_fd);
+    void handle_client(int client_fd);
 
 public:
     Server();
