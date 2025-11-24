@@ -8,7 +8,8 @@ This library is designed to be simple, extensible, and easy to integrate into yo
 
 - Handle HTTP requests and responses
 - Encode and decode HTTP requests and responses
-- Directly load environment variables from a .env file
+- Dynamic routing
+- Directly load environment variables from a environment variable file
 - Easy to integrate as a static or shared library
 
 ## Installation
