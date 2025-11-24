@@ -13,7 +13,7 @@ class Server {
 private:
     int server_fd;
     uint16_t port;
-    unordered_map<string, function<void(HTTPRequest&, HTTPResponse&)>> path_table;
+    unordered_map<string, function<void(HTTPRequest&, HTTPResponse&)>> pattern_table;
 
     string getHTTPDate();
 	void handle_client(int client_fd);
@@ -22,7 +22,7 @@ public:
     Server();
     ~Server();
 
-    void get(string route, function<void(HTTPRequest&, HTTPResponse&)> path_handler);
+    void get(string pattern, function<void(HTTPRequest&, HTTPResponse&)> pattern_handler);
     void listen(uint16_t port, function<void()> callback = nullptr);
 };
 

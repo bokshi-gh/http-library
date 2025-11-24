@@ -26,8 +26,8 @@ Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(string path, function<void(HTTPRequest &, HTTPResponse &)> path_handler) {
-    path_table[path] = path_handler;
+void Server::get(string path, function<void(HTTPRequest &, HTTPResponse &)> pattern_handler) {
+    pattern_table[path] = pattern_handler;
 }
 
 void Server::listen(uint16_t port, function<void()> callback) {
@@ -75,8 +75,8 @@ void Server::handle_client(int client_fd) {
     response.headers["Date"] = getHTTPDate();
     response.headers["Cache-Control"] = "no-cache";
 
-    if (path_table.find(request.path) != path_table.end()) {
-        path_table[request.path](request, response);
+    if (pattern_table.find(request.path) != pattern_table.end()) {
+        pattern_table[request.path](request, response);
     } else {
         response.status_code = 404;
         response.reason_phrase = "Not Found";
