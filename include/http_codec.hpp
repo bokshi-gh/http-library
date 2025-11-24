@@ -14,6 +14,7 @@ public:
     string version;
     unordered_map<string, string> headers;
     string body;
+    unordered_map<string, string> parameters;
 };
 
 class HTTPResponse {

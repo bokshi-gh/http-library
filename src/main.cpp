@@ -10,7 +10,10 @@ int main (int argc, char *argv[]) {
         std::string PORT = dotenv::getenv("PORT");
 
         Server server;
-        server.get("/monk", [](HTTPRequest &req, HTTPResponse &res) {
+	server.get("/dynamic/:id", [](HTTPRequest &req, HTTPResponse &res) {
+		res.body = req.parameters["id"];
+	});
+        server.get("/monk/", [](HTTPRequest &req, HTTPResponse &res) {
                 res.headers["Content-Type"] = "text/html";
                 res.body = "<p>a monk in a cloud!</p>";
         });

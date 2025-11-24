@@ -1,5 +1,7 @@
 #include "http_library.hpp"
 #include <cstdint>
+#include <http_codec.hpp>
+#include <sstream>
 #include <string>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -18,6 +20,21 @@ string Server::getHTTPDate() {
     char buf[30];
     strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
     return std::string(buf);
+}
+
+bool match_pattern(const string pattern, const string path, HTTPRequest &request) {
+	stringstream p(pattern), q(path);
+	string pp, qq;
+
+	while (getline(p, pp, '/') && std::getline(q, qq, '/')) {
+		if (pp.size() > 0 && pp[0] == ':') {
+			request.parameters[pp.substr(1)] = qq;
+		} else if (pp != qq) {
+			return false;
+		}
+	}
+
+	return p.eof() && q.eof();
 }
 
 Server::Server() : server_fd(-1), port(0) {}
@@ -75,9 +92,16 @@ void Server::handle_client(int client_fd) {
     response.headers["Date"] = getHTTPDate();
     response.headers["Cache-Control"] = "no-cache";
 
-    if (pattern_table.find(request.path) != pattern_table.end()) {
-        pattern_table[request.path](request, response);
-    } else {
+    bool found = false;
+    for (auto &pattern : pattern_table) {
+		if(match_pattern(pattern.first, request.path, request)) {
+			pattern_table[pattern.first](request, response);
+			found = true;
+			break;
+		}
+    }
+
+    if (!found) {
         response.status_code = 404;
         response.reason_phrase = "Not Found";
     }
