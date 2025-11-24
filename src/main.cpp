@@ -3,18 +3,20 @@
 #include <string>
 #include <cstdlib>
 
-int main (int argc, char *argv[]) {
-        dotenv::init();
-        std::string PORT = dotenv::getenv("PORT");
+dotenv::init();
+std::string PORT = dotenv::getenv("PORT");
 
+int main (int argc, char *argv[]) {
         Server server;
-        server.get("/monk", [](HTTPRequest &req, HTTPResponse &res) {
+        
+	server.get("/monk", [](HTTPRequest &req, HTTPResponse &res) {
                 res.headers["Content-Type"] = "text/html";
                 res.body = "<p>a monk in a cloud!</p>";
         });
 	server.get("/dynamic/:id", [](HTTPRequest &req, HTTPResponse &res) {
 		res.body = req.parameters["id"];
 	});
+
         server.listen(atoi(PORT.c_str()), [&]() {
                 std::cout << "HTTP server is listening on: 0.0.0.0:" << atoi(PORT.c_str());
         });
