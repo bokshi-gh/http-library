@@ -15,7 +15,7 @@ This library is designed to be simple, extensible, and easy to integrate into yo
 
 - Run the command:
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh)
+curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/build.sh | bash
 ```
 >**REQUIREMENTS:** bash, curl, git, cmake, make
 
