@@ -15,7 +15,7 @@ int main (int argc, char *argv[]) {
                 res.body = "<p>a monk in a cloud!</p>";
         });
         server.listen(atoi(PORT.c_str()), [&]() {
-                std::cout << "server is listening on port " << atoi(PORT.c_str());
+                std::cout << "Server is listening on port " << atoi(PORT.c_str());
         });
 	
         return 0;

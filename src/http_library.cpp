@@ -26,8 +26,8 @@ Server::~Server() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(string endpoint, function<void(HTTPRequest &, HTTPResponse &)> endpoint_handler) {
-    endpoint_table[endpoint] = endpoint_handler;
+void Server::get(string path, function<void(HTTPRequest &, HTTPResponse &)> path_handler) {
+    path_table[path] = path_handler;
 }
 
 void Server::listen(uint16_t port, function<void()> callback) {
@@ -75,8 +75,8 @@ void Server::handle_client(int client_fd) {
     response.headers["Date"] = getHTTPDate();
     response.headers["Cache-Control"] = "no-cache";
 
-    if (endpoint_table.find(request.path) != endpoint_table.end()) {
-        endpoint_table[request.path](request, response);
+    if (path_table.find(request.path) != path_table.end()) {
+        path_table[request.path](request, response);
     } else {
         response.status_code = 404;
         response.reason_phrase = "Not Found";
@@ -94,8 +94,8 @@ Client::Client(string hostname) : hostname(hostname), port(80) {}
 
 Client::Client(string hostname, uint16_t port) : hostname(hostname), port(port) {}
 
-HTTPResponse Client::get(const string endpoint, const unordered_map<string, string> headers) {
-    string raw_request = "GET " + endpoint + " HTTP/1.1\r\n";
+HTTPResponse Client::get(const string path, const unordered_map<string, string> headers) {
+    string raw_request = "GET " + path + " HTTP/1.1\r\n";
     if(headers.find("Host") == headers.end()) raw_request = raw_request + "Host: " + hostname + "\r\n";
     if(headers.find("Connection") == headers.end()) raw_request = raw_request + "Connection: keep-alive" + "\r\n";
     if(headers.find("User-Agent") == headers.end()) raw_request = raw_request + "User-Agent: HTTP-Library/1.0.0 (C++ client)" + "\r\n";
