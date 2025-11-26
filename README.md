@@ -1,8 +1,6 @@
 # HTTP Library
 
 A lightweight C++ HTTP library for creating and handling HTTP requests and responses.
-<br>
-This library is designed to be simple, extensible, and easy to integrate into your C++ projects.
 
 ## Features
 
@@ -18,7 +16,6 @@ This library is designed to be simple, extensible, and easy to integrate into yo
 ```bash
 curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | bash
 ```
->**REQUIREMENTS:** bash, curl, git, cmake, make
 
 ## Usage
 
