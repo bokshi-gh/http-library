@@ -25,7 +25,10 @@ public:
     HTTPServer();
     ~HTTPServer();
 
-    void get(const string& path, RouteHandler route_handler);
+    void http_get(const std::string& path, RouteHandler handler);
+    void http_post(const std::string& path, RouteHandler handler);
+    void http_put(const std::string& path, RouteHandler handler);
+    void http_delete(const std::string& path, RouteHandler handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr);
 };
