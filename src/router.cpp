@@ -27,7 +27,7 @@ void Router::handle_client(int client_fd) {
 
     bool found = false;
     for (auto& pair : routing_table) {
-        if (match_pattern(pair.first.path, request.path, request) &&
+        if (match_route(pair.first.path, request.path, request) &&
             pair.first.method == request.method) {
             pair.second(request, response);
             found = true;
