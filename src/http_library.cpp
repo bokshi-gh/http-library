@@ -1,11 +1,52 @@
 #include "http_library.hpp"
 
-void remove_trailing_forward_slash(string& str) {
-  if (str.size() > 1 && str.back() == '/') str.pop_back();
+HTTPServer::HTTPServer() : server_fd(-1) {}
+
+HTTPServer::~HTTPServer() {
+    if (server_fd >= 0) close(server_fd);
 }
 
-void Server::get(string path, function<void(HTTPRequest, HTTPResponse&)> route_handler) {
-  remove_trailing_forward_slash(path);
+void HTTPServer::get(const string& path, RouteHandler route_handler) {
+    router.add("GET", path, route_handler);
+}
 
-  routing_table[] = route_handler;
+string HTTPServer::getHTTPDate() {
+    time_t now = std::time(nullptr);
+    tm gm_time{};
+    gmtime_r(&now, &gm_time);
+
+    char buf[30];
+    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
+    return string(buf);
+}
+
+void HTTPServer::listen(uint16_t port, function<void()> callback) {
+    this->port = port;
+
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) { perror("socket failed"); return; }
+
+    sockaddr_in server_addr{};
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(port);
+
+    if (bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        perror("bind failed"); return;
+    }
+
+    if (::listen(server_fd, 5) < 0) { perror("listen failed"); return; }
+
+    if (callback) { callback(); cout.flush(); }
+
+    while (true) {
+        sockaddr_in client_addr{};
+        socklen_t client_len = sizeof(client_addr);
+        int client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
+        if (client_fd < 0) { perror("accept failed"); continue; }
+
+        thread([this, client_fd]() {
+            router.handle_client(client_fd);
+        }).detach();
+    }
 }

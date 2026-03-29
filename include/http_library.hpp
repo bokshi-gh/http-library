@@ -6,19 +6,29 @@
 
 #include <string>
 #include <unordered_map>
+#include <functional>
+#include <thread>
+#include <iostream>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 using namespace std;
 
-class Server {
-  private:
+class HTTPServer {
+private:
     int server_fd;
     uint16_t port;
+    Router router;
 
-  public:
-    Server();
-    ~Server();
+public:
+    HTTPServer();
+    ~HTTPServer();
 
-    void get(string path, RouteHandler route_handler);
+    void get(const string& path, RouteHandler route_handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr);
-}
+
+private:
+    string getHTTPDate();
+};
