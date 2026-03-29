@@ -20,7 +20,7 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 > Requirements: [cURL](https://curl.se/), [GNU Make](https://www.gnu.org/software/make/), and [GCC](https://gcc.gnu.org/).
 
-> Check source code of installer script [here](https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh).
+> Want to check source code of the installer script? It is [here](https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh).
 
 ## Integrate with your project
 
