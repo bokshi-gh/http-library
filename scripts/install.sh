@@ -7,20 +7,20 @@ PREFIX="/usr/local"
 
 TMP_DIR=$(mktemp -d)
 
-echo "Cloning repository..."
+GREEN='\033[0;32m'
+RESET='\033[0m'
+
+echo -e "${GREEN}Cloning repository...${RESET}"
 git clone --depth 1 "$REPO_URL" "$TMP_DIR"
 cd "$TMP_DIR"
 
-echo ""
-echo "Building $LIB_NAME..."
+echo -e "${GREEN}Building $LIB_NAME...${RESET}"
 make
 
-echo ""
-echo "Installing $LIB_NAME system-wide to $PREFIX..."
+echo -e "${GREEN}Installing $LIB_NAME system-wide to $PREFIX...${RESET}"
 make install
 
 cd /
 rm -rf "$TMP_DIR"
 
-echo ""
-echo "Installation complete!"
+echo -e "${GREEN}Installation complete!${RESET}"
