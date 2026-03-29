@@ -12,21 +12,32 @@ A lightweight C++ HTTP library for creating and handling HTTP requests and respo
 
 ## Installation
 
-- Run the command:
+- Install remotely via installer script:
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | sudo bash
 ```
 
-## Usage
+> Source: [scripts/install.sh](scripts/install.sh)
 
-- Example code is available in [**`src/main.cpp`**](https://github.com/bokshi-gh/http-library/blob/main/src/main.cpp) file demonstrating how to use the library.
+## Integrate with your project
+
+- Example code is available in [**`examples/http_library_demo.cpp`**](examples/http_library_demo.cpp) file demonstrating how to use the library.
 
 - Add the header in your C++ project:
 ```c++
-#include <http_library.hpp>
+#include <bokshi/http_library.hpp>
 ```
 
 - Link library while compiling your project:
 ```bash
-g++ main.cpp -lhttplibrary -o main
+g++ main.cpp -lhttp_library -pthread -o my_server
+```
+
+## Uninstallation
+
+```sh
+sudo rm -f /usr/local/include/bokshi/*.hpp
+sudo rm -f /usr/local/lib/libhttp_library.a
+sudo ldconfig
 ```
