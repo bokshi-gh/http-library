@@ -43,6 +43,8 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 g++ main.cpp -lhttp_library -pthread -o my_server
 ```
 
+---
+
 ## Uninstallation
 
 ```sh
