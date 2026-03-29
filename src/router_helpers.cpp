@@ -1,5 +1,21 @@
 #include "router_helpers.hpp"
 
+#include <stdexcept>
+
+void validate_path(const std::string& path) {
+    if (path.empty() || !path.starts_with('/')) {
+        throw std::invalid_argument("Invalid route path: " + path + " (must start with '/')");
+    }
+}
+
+std::string normalize_path(const std::string& path) {
+    std::string normalized_path = path;
+    while (normalized_path.size() > 1 && normalized_path.back() == '/') {
+        path.pop_back();
+    }
+    return normalized_path;
+}
+
 bool match_route(const std::string& route_path, const std::string& request_path, HTTPRequest& request) {
     std::stringstream route_stream(route_path), request_stream(request_path);
     std::string route_segment, request_segment;
