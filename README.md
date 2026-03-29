@@ -1,7 +1,7 @@
 # HTTP Library
 
 A lightweight C++ HTTP library for creating and handling HTTP requests and responses.  
-> [!WARNING]  
+> [!NOTE]  
 > The library only works on POSIX-compliant systems.
 
 ---
