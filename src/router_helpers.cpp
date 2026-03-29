@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 void validate_path(const std::string& path) {
-    if (path.empty() || !path.starts_with('/')) {
+    if (path.empty() || path[0] != '/') {
         throw std::invalid_argument("Invalid route path: " + path + " (must start with '/')");
     }
 }
