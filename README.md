@@ -1,14 +1,19 @@
 # HTTP Library
 
-A lightweight C++ HTTP library for POSIX-compliant systems.
+A lightweight C++ HTTP library for creating and handling HTTP requests and responses.  
+> [!WARNING]  
+> The library only works on POSIX-compliant systems.
+
+---
 
 ## Features
 
-- Handle HTTP requests and responses
-- Encode and decode HTTP requests and responses
-- Dynamic routing
-- Directly load environment variables from a environment variable file
-- Easy to integrate as a static or shared library
+- Create and handle HTTP requests and responses
+- Can be used as both a server and a client
+- Uses [this](https://github.com/bokshi-gh/http-codec.git) library to encode and decode HTTP requests and responses
+- Uses [this](https://github.com/bokshi-gh/dotenv-cpp.git) utility to directly load environment variables from a file
+
+---
 
 ## Installation
 
