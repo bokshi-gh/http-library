@@ -1,5 +1,4 @@
 #include "http_library.hpp"
-#include "http_library_helpers.hpp"
 
 HTTPServer::HTTPServer() : server_fd(-1) {}
 HTTPServer::~HTTPServer() {
