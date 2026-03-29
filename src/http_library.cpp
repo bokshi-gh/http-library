@@ -6,8 +6,20 @@ HTTPServer::~HTTPServer() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void HTTPServer::get(const string& path, RouteHandler route_handler) {
+void HTTPServer::http_get(const string& path, RouteHandler route_handler) {
     router.add("GET", path, route_handler);
+}
+
+void HTTPServer::http_post(const string& path, RouteHandler route_handler) {
+    router.add("POST", path, route_handler);
+}
+
+void HTTPServer::http_put(const string& path, RouteHandler route_handler) {
+    router.add("PUT", path, route_handler);
+}
+
+void HTTPServer::http_delete(const string& path, RouteHandler route_handler) {
+    router.add("DELETE", path, route_handler);
 }
 
 void HTTPServer::listen(uint16_t port, function<void()> callback) {
