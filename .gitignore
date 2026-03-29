@@ -1,5 +1,5 @@
-*.un~
-*.swp
-
+http_library_demo
 *.out
-*.exe
+
+*.o
+*.a
