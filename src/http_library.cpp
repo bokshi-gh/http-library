@@ -1,6 +1,7 @@
 #include "http_library.hpp"
 
 HTTPServer::HTTPServer() : server_fd(-1) {}
+
 HTTPServer::~HTTPServer() {
     if (server_fd >= 0) close(server_fd);
 }
