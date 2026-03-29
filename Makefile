@@ -15,7 +15,6 @@ all: $(LIB_NAME)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(LIB_NAME): $(OBJ)
-	@echo "Building $(LIB_NAME) (includes codec objects)"
 	mkdir -p tmp_objs
 	cp $(OBJ) tmp_objs/
 	cd tmp_objs && ar x ../$(LIB_CODEC)
