@@ -6,6 +6,9 @@ HTTPServer::~HTTPServer() {
 }
 
 void HTTPServer::get(const string& path, RouteHandler route_handler) {
+    validate_path(path);
+
+    string normalized_path
     router.add("GET", path, route_handler);
 }
 
