@@ -5,6 +5,7 @@ SRC      = src/http_library.cpp src/router.cpp src/router_helpers.cpp
 OBJ      = $(SRC:.cpp=.o)
 LIB_CODEC= lib/libhttp_codec.a
 LIB_NAME = libhttp_library.a
+INSTALL_INCLUDE_DIR = /usr/local/include/bokshi
 
 .PHONY: all clean install uninstall
 
@@ -25,15 +26,16 @@ clean:
 	rm -f $(OBJ) $(LIB_NAME)
 
 install: $(LIB_NAME)
-	@echo "Installing http_library headers..."
-	sudo cp include/*.hpp /usr/local/include/
-	@echo "Installing libhttp_library..."
+	@echo "Installing http_library headers to $(INSTALL_INCLUDE_DIR)..."
+	sudo mkdir -p $(INSTALL_INCLUDE_DIR)
+	sudo cp include/*.hpp $(INSTALL_INCLUDE_DIR)/
+	@echo "Installing $(LIB_NAME) to /usr/local/lib..."
 	sudo cp $(LIB_NAME) /usr/local/lib/
 	sudo ldconfig
 
 uninstall:
-	@echo "Removing http_library headers..."
-	sudo rm -f /usr/local/include/*.hpp
-	@echo "Removing libhttp_library..."
+	@echo "Removing http_library headers from $(INSTALL_INCLUDE_DIR)..."
+	sudo rm -f $(INSTALL_INCLUDE_DIR)/*.hpp
+	@echo "Removing $(LIB_NAME) from /usr/local/lib..."
 	sudo rm -f /usr/local/lib/$(LIB_NAME)
 	sudo ldconfig
