@@ -27,7 +27,7 @@ clean:
 install: $(LIB_NAME)
 	@echo "Installing http_library headers..."
 	sudo cp include/*.hpp /usr/local/include/
-	@echo "Installing http_library..."
+	@echo "Installing libhttp_library..."
 	sudo cp $(LIB_NAME) /usr/local/lib/
 	sudo ldconfig
 
