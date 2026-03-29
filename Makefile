@@ -34,6 +34,6 @@ install: $(LIB_NAME)
 uninstall:
 	@echo "Removing http_library headers..."
 	sudo rm -f /usr/local/include/*.hpp
-	@echo "Removing http_library..."
+	@echo "Removing libhttp_library..."
 	sudo rm -f /usr/local/lib/$(LIB_NAME)
 	sudo ldconfig
