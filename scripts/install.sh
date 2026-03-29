@@ -14,16 +14,16 @@ echo -e "${GREEN}Cloning repository...${RESET}"
 git clone --depth 1 "$REPO_URL" "$TMP_DIR"
 cd "$TMP_DIR"
 
-echo ""
+echo " "
 echo -e "${GREEN}Building $LIB_NAME...${RESET}"
 make
 
-echo ""
+echo " "
 echo -e "${GREEN}Installing $LIB_NAME system-wide to $PREFIX...${RESET}"
 make install
 
 cd /
 rm -rf "$TMP_DIR"
 
-echo ""
+echo " "
 echo -e "${GREEN}Installation complete!${RESET}"
