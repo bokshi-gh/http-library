@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include <unistd.h>
+#include <sys/socket.h>
 
 using namespace std;
 using RouteHandler = function<void(HTTPRequest& req, HTTPResponse& res)>;
