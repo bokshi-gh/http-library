@@ -8,7 +8,7 @@
 #include <functional>
 
 using namespace std;
-using RouteHandler = function<void(const HTTPRequest& req, HTTPResponse& res)>;
+using RouteHandler = function<void(HTTPRequest& req, HTTPResponse& res)>;
 
 struct Route {
     string method;
