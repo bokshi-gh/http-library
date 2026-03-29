@@ -11,7 +11,7 @@ void validate_path(const std::string& path) {
 std::string normalize_path(const std::string& path) {
     std::string normalized_path = path;
     while (normalized_path.size() > 1 && normalized_path.back() == '/') {
-        path.pop_back();
+        normalized_path.pop_back();
     }
     return normalized_path;
 }
