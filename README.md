@@ -29,7 +29,7 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 ---
 
-## Integrate into your project
+## Integrate Into Your Project
 
 - Example code is available in [**`examples/http_library_demo.cpp`**](examples/http_library_demo.cpp), demonstrating how to use the library
 
