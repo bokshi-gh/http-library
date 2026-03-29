@@ -1,11 +1,6 @@
-#include "http_library_helpers.hpp"
+#pragma once
 
-std::string get_current_date() {
-    time_t now = std::time(nullptr);
-    tm gm_time{};
-    gmtime_r(&now, &gm_time);
+#include <string>
+#include <ctime>
 
-    char buf[30];
-    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
-    return std::string(buf);
-}
+std::string get_current_date();
