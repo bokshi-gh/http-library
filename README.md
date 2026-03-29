@@ -18,18 +18,20 @@ A lightweight C++ HTTP library for creating and handling HTTP requests and respo
 curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | sudo bash
 ```
 
-> Source: [scripts/install.sh](scripts/install.sh)
+> SOURCE CODE: [install.sh](https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh)
 
 ## Integrate with your project
 
 - Example code is available in [**`examples/http_library_demo.cpp`**](examples/http_library_demo.cpp) file demonstrating how to use the library.
 
 - Add the header in your C++ project:
+
 ```c++
 #include <bokshi/http_library.hpp>
 ```
 
 - Link library while compiling your project:
+
 ```bash
 g++ main.cpp -lhttp_library -pthread -o my_server
 ```
