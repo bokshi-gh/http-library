@@ -28,7 +28,4 @@ public:
     void get(const string& path, RouteHandler route_handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr);
-
-private:
-    string getHTTPDate();
 };
