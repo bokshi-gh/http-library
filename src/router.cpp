@@ -3,7 +3,9 @@
 #include <iostream>
 
 void Router::add(const string& method, const string& path, RouteHandler route_handler) {
-    routing_table[{method, path}] = route_handler;
+    validate_path(path);
+    string normalized_path = normalize_path(path);
+    routing_table[{method, normalized_path}] = route_handler;
 }
 
 void Router::handle_client(int client_fd) {
