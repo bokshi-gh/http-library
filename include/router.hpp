@@ -6,12 +6,9 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
-#include <sstream>
-#include <iostream>
 
 using namespace std;
-
-using RouteHandler = function<void(HTTPRequest, HTTPResponse&)>;
+using RouteHandler = function<void(const HTTPRequest& req, HTTPResponse& res)>;
 
 struct Route {
     string method;
@@ -24,9 +21,7 @@ struct Route {
 
 struct RouteHash {
     size_t operator()(const Route& r) const {
-        size_t h1 = hash<string>{}(r.method);
-        size_t h2 = hash<string>{}(r.path);
-        return h1 ^ (h2 * 31); // combine hashes
+        return hash<string>{}(r.method) ^ (hash<string>{}(r.path) * 31);
     }
 };
 
@@ -38,7 +33,4 @@ public:
     void add(const string& method, const string& path, RouteHandler route_handler);
 
     void handle_client(int client_fd);
-
-    // Optional: simple pattern matching (like /user/:id)
-    bool match_pattern(const string& pattern, const string& path, HTTPRequest& request);
 };
