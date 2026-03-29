@@ -1,26 +1,13 @@
 #include "router.hpp"
+#include "router_helpers.hpp"
+#include <iostream>
 
 void Router::add(const string& method, const string& path, RouteHandler route_handler) {
     routing_table[{method, path}] = route_handler;
 }
 
-bool Router::match_pattern(const string& pattern, const string& path, HTTPRequest& request) {
-    stringstream p(pattern), q(path);
-    string pp, qq;
-
-    while (getline(p, pp, '/') && getline(q, qq, '/')) {
-        if (!pp.empty() && pp[0] == ':') {
-            request.parameters[pp.substr(1)] = qq;
-        } else if (pp != qq) {
-            return false;
-        }
-    }
-
-    return p.eof() && q.eof();
-}
-
 void Router::handle_client(int client_fd) {
-    char buffer[4096]; // buffer can't handle payload > 4096
+    char buffer[4096];
     int n = read(client_fd, buffer, sizeof(buffer) - 1);
     if (n <= 0) { close(client_fd); return; }
     buffer[n] = '\0';
@@ -34,6 +21,7 @@ void Router::handle_client(int client_fd) {
     response.headers["Content-Type"] = "text/plain";
     response.headers["Connection"] = "keep-alive";
     response.headers["Server"] = "HTTP-Library/1.0.0 (C++ server)";
+    response.headers["Date"] = get_current_date();
 
     bool found = false;
     for (auto& pair : routing_table) {
