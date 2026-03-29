@@ -18,7 +18,7 @@ A lightweight C++ HTTP library for creating and handling HTTP requests and respo
 curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | sudo bash
 ```
 
-> Check source code of installer code [here](https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh).
+> Check source code of installer script [here](https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh).
 
 ## Integrate with your project
 
