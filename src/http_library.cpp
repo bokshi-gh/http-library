@@ -7,5 +7,5 @@ void remove_trailing_forward_slash(string& str) {
 void Server::get(string path, function<void(HTTPRequest, HTTPResponse&)> route_handler) {
   remove_trailing_forward_slash(path);
 
-  routing_table[path] = route_handler;
+  routing_table[] = route_handler;
 }
