@@ -45,3 +45,9 @@ sudo rm -f /usr/local/include/bokshi/*.hpp
 sudo rm -f /usr/local/lib/libhttp_library.a
 sudo ldconfig
 ```
+
+---
+
+## License
+
+This project is licensed under the [GPL-3.0 license](./LICENSE).  
