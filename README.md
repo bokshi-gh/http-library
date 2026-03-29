@@ -17,7 +17,7 @@ A lightweight C++ HTTP library for creating and handling HTTP requests and respo
 
 ## Installation
 
-- Install remotely via installer script:
+- Install via the installer script:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | sudo bash
@@ -48,6 +48,8 @@ g++ main.cpp -lhttp_library -pthread -o my_server
 ---
 
 ## Uninstallation
+
+- Remove the installed headers and library files from the system:
 
 ```sh
 sudo rm -f /usr/local/include/bokshi/*.hpp
