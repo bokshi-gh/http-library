@@ -22,7 +22,7 @@ $(LIB_NAME): $(OBJ)
 	mkdir -p tmp_objs
 	cp $(OBJ) tmp_objs/
 	cd tmp_objs && ar x ../$(LIB_CODEC)
-	ar rcs ../$(LIB_NAME) tmp_objs/*.o
+	ar rcs $(LIB_NAME) tmp_objs/*.o
 	rm -rf tmp_objs
 
 # Clean build artifacts
