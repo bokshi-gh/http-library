@@ -22,7 +22,7 @@ void Router::handle_client(int client_fd) {
     response.reason_phrase = "OK";
     response.headers["Content-Type"] = "text/plain";
     response.headers["Connection"] = "keep-alive";
-    response.headers["Server"] = "HTTP-Library/1.0.0 (C++ server)";
+    response.headers["Server"] = "ProductName/Version (Optional comment)";
     response.headers["Date"] = get_current_date();
 
     bool found = false;
