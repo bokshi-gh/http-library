@@ -1,23 +1,13 @@
 #include "http_library.hpp"
+#include "http_library_helpers.hpp" // use helper
 
 HTTPServer::HTTPServer() : server_fd(-1) {}
-
 HTTPServer::~HTTPServer() {
     if (server_fd >= 0) close(server_fd);
 }
 
 void HTTPServer::get(const string& path, RouteHandler route_handler) {
     router.add("GET", path, route_handler);
-}
-
-string HTTPServer::getHTTPDate() {
-    time_t now = std::time(nullptr);
-    tm gm_time{};
-    gmtime_r(&now, &gm_time);
-
-    char buf[30];
-    strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", &gm_time);
-    return string(buf);
 }
 
 void HTTPServer::listen(uint16_t port, function<void()> callback) {
