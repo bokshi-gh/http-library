@@ -6,19 +6,19 @@ HTTPServer::~HTTPServer() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void HTTPServer::http_get(const string& path, RouteHandler route_handler) {
+void HTTPServer::get(const string& path, RouteHandler route_handler) {
     router.register_handler("GET", path, route_handler);
 }
 
-void HTTPServer::http_post(const string& path, RouteHandler route_handler) {
+void HTTPServer::post(const string& path, RouteHandler route_handler) {
     router.register_handler("POST", path, route_handler);
 }
 
-void HTTPServer::http_put(const string& path, RouteHandler route_handler) {
+void HTTPServer::put(const string& path, RouteHandler route_handler) {
     router.register_handler("PUT", path, route_handler);
 }
 
-void HTTPServer::http_delete(const string& path, RouteHandler route_handler) {
+void HTTPServer::del(const string& path, RouteHandler route_handler) {
     router.register_handler("DELETE", path, route_handler);
 }
 
@@ -27,6 +27,10 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) { perror("socket failed"); return; }
+
+    // Allow socket reuse immediately after close
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
@@ -41,33 +45,43 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
 
     if (callback) { callback(); cout.flush(); }
 
+    cout << "HTTPServer listening on port " << port << endl;
+
     while (true) {
         sockaddr_in client_addr{};
         socklen_t client_len = sizeof(client_addr);
         int client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
         if (client_fd < 0) { perror("accept failed"); continue; }
 
-        thread([this, client_fd]() {
+        // ✅ Clean lambda: capture only client_fd, this is redundant
+        thread([client_fd, this]() {  // this is actually needed to call handle_client
             handle_client(client_fd);
         }).detach();
     }
 }
 
 void HTTPServer::handle_client(int client_fd) {
-    char buffer[4096];  // WARNING: buffer can't handle payload greater than 4096
-    int n = read(client_fd, buffer, sizeof(buffer) - 1);
-    if (n <= 0) { close(client_fd); return; }
-    buffer[n] = '\0';
+    string raw_request;
+    char buffer[4096];
 
-    HTTPRequest request = decode_http_request(buffer);
+    // Read until end of headers (crude, but better than single read)
+    while (true) {
+        int n = read(client_fd, buffer, sizeof(buffer));
+        if (n <= 0) { close(client_fd); return; }
+        raw_request.append(buffer, n);
+
+        if (raw_request.find("\r\n\r\n") != string::npos) break;
+    }
+
+    HTTPRequest request = decode_http_request(raw_request);
 
     HTTPResponse response;
     response.version = "HTTP/1.1";
     response.status_code = 200;
     response.reason_phrase = "OK";
     response.headers["Content-Type"] = "text/plain";
-    response.headers["Connection"] = "keep-alive";
-    response.headers["Server"] = "ProductName/Version (Optional comment)";  // will fix this later
+    response.headers["Connection"] = "close"; // safer for now
+    response.headers["Server"] = "ProductName/Version";
 
     bool found = router.try_dispatch(request, response);
     if (!found) {
@@ -92,7 +106,15 @@ void HTTPServer::handle_client(int client_fd) {
     }
 
     string raw_response = encode_http_response(response);
-    send(client_fd, raw_response.c_str(), raw_response.size(), 0);
+
+    // Send fully
+    ssize_t total_sent = 0;
+    ssize_t to_send = raw_response.size();
+    while (total_sent < to_send) {
+        ssize_t sent = send(client_fd, raw_response.c_str() + total_sent, to_send - total_sent, 0);
+        if (sent <= 0) break;
+        total_sent += sent;
+    }
 
     close(client_fd);
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "http_server_helpers.hpp"
+#include "server_helpers.hpp"
 
 #include "router.hpp"
-#include "http_codec.hpp"
+#include "codec.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -26,10 +26,10 @@ public:
     HTTPServer();
     ~HTTPServer();
 
-    void http_get(const std::string& path, RouteHandler route_handler);
-    void http_post(const std::string& path, RouteHandler route_handler);
-    void http_put(const std::string& path, RouteHandler route_handler);
-    void http_delete(const std::string& path, RouteHandler route_handler);
+    void get(const std::string& path, RouteHandler route_handler);
+    void post(const std::string& path, RouteHandler route_handler);
+    void put(const std::string& path, RouteHandler route_handler);
+    void del(const std::string& path, RouteHandler route_handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr);
    
