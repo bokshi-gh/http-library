@@ -33,5 +33,4 @@ private:
 
 public:
     void add_entry_to_routing_table(const string& method, const string& path, RouteHandler route_handler);
-
 };
