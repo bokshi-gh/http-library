@@ -67,7 +67,7 @@ void HTTPServer::handle_incoming_client(int client_fd) {
     response.reason_phrase = "OK";
     response.headers["Content-Type"] = "text/plain";
     response.headers["Connection"] = "keep-alive";
-    response.headers["Server"] = "ProductName/Version (Optional comment)";
+    response.headers["Server"] = "ProductName/Version (Optional comment)";  // will fix this later
     response.headers["Date"] = get_current_date();
 
     bool found = false;
