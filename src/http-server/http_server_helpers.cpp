@@ -1,5 +1,7 @@
 #include "http_server_helpers.hpp"
 
+#include <string>
+
 std::string get_current_date() {
     time_t now = std::time(nullptr);
     tm gm_time{};
