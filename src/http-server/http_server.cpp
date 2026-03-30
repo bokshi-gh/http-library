@@ -48,13 +48,13 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
         if (client_fd < 0) { perror("accept failed"); continue; }
 
         thread([this, client_fd]() {
-            router.handle_client(client_fd);
+            handle_incoming_client(client_fd);
         }).detach();
     }
 }
 
 void HTTPServer::handle_incoming_client(int client_fd) {
-    char buffer[4096];
+    char buffer[4096];  // WARNING: buffer can't handle payload greater than 4096
     int n = read(client_fd, buffer, sizeof(buffer) - 1);
     if (n <= 0) { close(client_fd); return; }
     buffer[n] = '\0';
