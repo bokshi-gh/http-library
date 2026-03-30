@@ -1,5 +1,5 @@
 #include "router.hpp"
-#include "router_helpers.hpp"
+
 #include <iostream>
 
 void Router::register_handler(const string& method, const string& path, RouteHandler route_handler) {
