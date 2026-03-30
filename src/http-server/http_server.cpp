@@ -77,7 +77,7 @@ void HTTPServer::handle_client(int client_fd) {
     response.reason_phrase = "OK";
     response.headers["Content-Type"] = "text/plain";
     response.headers["Connection"] = "close";
-    response.headers["Server"] = "ProductName/Version";
+    response.headers["Server"] = "ProductName/Version (Optional comment)";  // will fix this later
 
     bool found = router.try_dispatch(request, response);
     if (!found) {
