@@ -32,6 +32,6 @@ private:
     unordered_map<Route, RouteHandler, RouteHash> routing_table;
 
 public:
-    void add_entry_to_routing_table(const string& method, const string& path, RouteHandler route_handler);
-    bool find_and_invoke_handler(HTTPRequest& request, HTTPResponse& response);
+    void register_handler(const string& method, const string& path, RouteHandler route_handler);
+    bool dispatch_request(HTTPRequest& request, HTTPResponse& response);
 };

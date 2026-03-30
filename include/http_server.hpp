@@ -32,5 +32,5 @@ public:
     void listen(uint16_t port, function<void()> callback = nullptr);
    
 private:
-    void handle_incoming_client(int client_fd);
+    void handle_client(int client_fd);
 };
