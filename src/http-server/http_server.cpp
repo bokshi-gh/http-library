@@ -76,10 +76,19 @@ void HTTPServer::handle_client(int client_fd) {
         response.body = "404 Not Found";
     }
 
+    // Why AFTER try_dispatch? Because we want the 'Date' to reflect the 
+    // exact moment the handler finished processing and the response is ready.
+    // Why the IF check? To respect the developer; if they manually set a 
+    // specific 'Date' in the handler, we don't want to overwrite their choice.
     if (response.headers.find("Date") == response.headers.end()) {
         response.headers["Date"] = get_current_date();
     }
 
+    // Why AFTER try_dispatch? Because we cannot know the size of the 
+    // body until the handler (or the 404 logic) has finished filling it.
+    // Why we ALWAYS overwrite (no IF check): Protocol Safety. If the 
+    // Content-Length doesn't match the actual body size exactly, 
+    // the browser will hang or the connection will break.
     response.headers["Content-Length"] = to_string(response.body.size());
 
     string raw_response = encode_http_response(response);
