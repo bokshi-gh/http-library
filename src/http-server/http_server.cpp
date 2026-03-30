@@ -45,8 +45,6 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
 
     if (callback) { callback(); cout.flush(); }
 
-    cout << "HTTPServer listening on port " << port << endl;
-
     while (true) {
         sockaddr_in client_addr{};
         socklen_t client_len = sizeof(client_addr);
