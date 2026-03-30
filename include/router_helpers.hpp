@@ -4,7 +4,6 @@
 
 #include <string>
 #include <sstream>
-#include <ctime>
 
 void validate_path(const std::string& path);
 std::string normalize_path(const std::string& path);

@@ -60,8 +60,8 @@ void HTTPServer::handle_incoming_client(int client_fd) {
     buffer[n] = '\0';
 
     HTTPRequest request = decode_http_request(buffer);
-    HTTPResponse response;
 
+    HTTPResponse response;
     response.version = "HTTP/1.1";
     response.status_code = 200;
     response.reason_phrase = "OK";
@@ -70,16 +70,7 @@ void HTTPServer::handle_incoming_client(int client_fd) {
     response.headers["Server"] = "ProductName/Version (Optional comment)";  // will fix this later
     response.headers["Date"] = get_current_date();
 
-    bool found = false;
-    for (auto& pair : routing_table) {
-        if (match_route(pair.first.path, request.path, request) &&
-            pair.first.method == request.method) {
-            pair.second(request, response);
-            found = true;
-            break;
-        }
-    }
-
+    bool found = router.find_route_in_routing_table_and_call_route_handler_if_present();
     if (!found) {
         response.status_code = 404;
         response.reason_phrase = "Not Found";

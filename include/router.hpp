@@ -33,4 +33,5 @@ private:
 
 public:
     void add_entry_to_routing_table(const string& method, const string& path, RouteHandler route_handler);
+    bool find_route_in_routing_table_and_call_route_handler_if_present(HTTPRequest& request, HTTPResponse& response);
 };
