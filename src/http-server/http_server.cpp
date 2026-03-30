@@ -53,8 +53,7 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
         int client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
         if (client_fd < 0) { perror("accept failed"); continue; }
 
-        // ✅ Clean lambda: capture only client_fd, this is redundant
-        thread([client_fd, this]() {  // this is actually needed to call handle_client
+        thread([this, client_fd]() {
             handle_client(client_fd);
         }).detach();
     }
@@ -64,7 +63,6 @@ void HTTPServer::handle_client(int client_fd) {
     string raw_request;
     char buffer[4096];
 
-    // Read until end of headers (crude, but better than single read)
     while (true) {
         int n = read(client_fd, buffer, sizeof(buffer));
         if (n <= 0) { close(client_fd); return; }
@@ -80,7 +78,7 @@ void HTTPServer::handle_client(int client_fd) {
     response.status_code = 200;
     response.reason_phrase = "OK";
     response.headers["Content-Type"] = "text/plain";
-    response.headers["Connection"] = "close"; // safer for now
+    response.headers["Connection"] = "close";
     response.headers["Server"] = "ProductName/Version";
 
     bool found = router.try_dispatch(request, response);
@@ -107,7 +105,6 @@ void HTTPServer::handle_client(int client_fd) {
 
     string raw_response = encode_http_response(response);
 
-    // Send fully
     ssize_t total_sent = 0;
     ssize_t to_send = raw_response.size();
     while (total_sent < to_send) {
