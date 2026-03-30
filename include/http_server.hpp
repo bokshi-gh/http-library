@@ -1,7 +1,6 @@
 #pragma once
 
 #include "http_codec.hpp"
-#include "dotenv_cpp.hpp"
 #include "router.hpp"
 
 #include <string>
@@ -31,5 +30,6 @@ public:
     void http_delete(const std::string& path, RouteHandler handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr);
-    void handle_incoming_client();
+   
+    void handle_incoming_client(int client_fd);
 };
