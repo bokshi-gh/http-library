@@ -8,7 +8,7 @@ void Router::add_entry_to_routing_table(const string& method, const string& path
     routing_table[{method, normalized_path}] = route_handler;
 }
 
-bool Router::find_route_in_routing_table_and_call_route_handler_if_present(HTTPRequest& request, HTTPResponse& response) {
+bool Router::find_and_invoke_handler(HTTPRequest& request, HTTPResponse& response) {
     bool found = false;
     for (auto& pair : routing_table) {
         if (match_route(pair.first.path, request.path, request) &&
