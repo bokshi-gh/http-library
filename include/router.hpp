@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 
 using namespace std;
-using RouteHandler = function<void(HTTPRequest& req, HTTPResponse& res)>;
+using RouteHandler = function<void(HTTPRequest& request, HTTPResponse& response)>;
 
 struct Route {
     string method;
@@ -32,7 +32,7 @@ private:
     unordered_map<Route, RouteHandler, RouteHash> routing_table;
 
 public:
-    void add(const string& method, const string& path, RouteHandler route_handler);
+    void add_entry_to_routing_table(const string& method, const string& path, RouteHandler route_handler);
 
     void handle_client(int client_fd);
 };

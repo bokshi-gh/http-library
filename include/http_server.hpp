@@ -31,4 +31,5 @@ public:
     void http_delete(const std::string& path, RouteHandler handler);
 
     void listen(uint16_t port, function<void()> callback = nullptr);
+    void handle_incoming_client();
 };
