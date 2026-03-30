@@ -35,18 +35,12 @@ clean:
 	rm -f $(OBJ) $(LIB_NAME)
 
 install: $(LIB_NAME)
-	@echo "Installing headers to $(INSTALL_INCLUDE_DIR)..."
 	sudo mkdir -p $(INSTALL_INCLUDE_DIR)
 	sudo cp -r include/* $(INSTALL_INCLUDE_DIR)/
-
-	@echo "Installing library to $(INSTALL_LIB_DIR)..."
 	sudo cp $(LIB_NAME) $(INSTALL_LIB_DIR)/
 	sudo ldconfig
 
 uninstall:
-	@echo "Removing headers from $(INSTALL_INCLUDE_DIR)..."
 	sudo rm -rf $(INSTALL_INCLUDE_DIR)
-
-	@echo "Removing library from $(INSTALL_LIB_DIR)..."
 	sudo rm -f $(INSTALL_LIB_DIR)/$(LIB_NAME)
 	sudo ldconfig
