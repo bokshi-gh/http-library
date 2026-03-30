@@ -33,5 +33,5 @@ private:
 
 public:
     void register_handler(const string& method, const string& path, RouteHandler route_handler);
-    bool dispatch_request(HTTPRequest& request, HTTPResponse& response);
+    bool try_dispatch(HTTPRequest& request, HTTPResponse& response);
 };

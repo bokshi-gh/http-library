@@ -68,18 +68,19 @@ void HTTPServer::handle_client(int client_fd) {
     response.headers["Content-Type"] = "text/plain";
     response.headers["Connection"] = "keep-alive";
     response.headers["Server"] = "ProductName/Version (Optional comment)";  // will fix this later
-    response.headers["Date"] = get_current_date();
 
-    bool found = router.find_route_in_routing_table_and_call_route_handler_if_present();
+    bool found = router.try_dispatch(request, response);
     if (!found) {
         response.status_code = 404;
         response.reason_phrase = "Not Found";
         response.body = "404 Not Found";
     }
 
-    if (response.headers.find("Content-Length") == response.headers.end()) {
-        response.headers["Content-Length"] = to_string(response.body.size());
+    if (response.headers.find("Date") == response.headers.end()) {
+        response.headers["Date"] = get_current_date();
     }
+
+    response.headers["Content-Length"] = to_string(response.body.size());
 
     string raw_response = encode_http_response(response);
     send(client_fd, raw_response.c_str(), raw_response.size(), 0);

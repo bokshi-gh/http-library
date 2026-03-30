@@ -8,7 +8,7 @@ void Router::register_handler(const string& method, const string& path, RouteHan
     routing_table[{method, normalized_path}] = route_handler;
 }
 
-bool Router::(HTTPRequest& request, HTTPResponse& response) {
+bool Router::try_dispatch(HTTPRequest& request, HTTPResponse& response) {
     bool found = false;
     for (auto& pair : routing_table) {
         if (match_route(pair.first.path, request.path, request) &&
