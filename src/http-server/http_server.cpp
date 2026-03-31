@@ -58,58 +58,97 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
 }
 
 void HTTPServer::handle_client(int client_fd) {
-    string raw_request;
     char buffer[4096];
 
+    // Default timeout for keep-alive (in seconds)
+    const int keep_alive_timeout = 5;
+
+    // Loop to handle multiple requests per connection
     while (true) {
-        int n = read(client_fd, buffer, sizeof(buffer));
-        if (n <= 0) { close(client_fd); return; }
-        raw_request.append(buffer, n);
+        string raw_request;
+        ssize_t n = 0;
 
-        if (raw_request.find("\r\n\r\n") != string::npos) break;
+        // Set a timeout for recv to avoid infinite blocking
+        timeval tv{};
+        tv.tv_sec = keep_alive_timeout;
+        tv.tv_usec = 0;
+        setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+
+        // Receive request
+        while (true) {
+            n = recv(client_fd, buffer, sizeof(buffer), 0);
+            if (n < 0) {
+                perror("recv failed");
+                close(client_fd);
+                return;
+            } else if (n == 0) {
+                // client closed connection
+                close(client_fd);
+                return;
+            }
+            raw_request.append(buffer, n);
+
+            // End of HTTP headers
+            if (raw_request.find("\r\n\r\n") != string::npos) break;
+        }
+
+        HTTPRequest request;
+        try {
+            request = decode_http_request(raw_request);
+        } catch (...) {
+            // Bad request
+            string bad_response = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+            send(client_fd, bad_response.c_str(), bad_response.size(), 0);
+            close(client_fd);
+            return;
+        }
+
+        HTTPResponse response;
+        response.version = "HTTP/1.1";
+        response.status_code = 200;
+        response.reason_phrase = "OK";
+        response.headers["Content-Type"] = "text/plain";
+        response.headers["Server"] = "ProductName/Version";
+
+        bool found = router.try_dispatch(request, response);
+        if (!found) {
+            response.status_code = 404;
+            response.reason_phrase = "Not Found";
+            response.body = "404 Not Found";
+        }
+
+        // Set Date if not provided
+        if (response.headers.find("Date") == response.headers.end()) {
+            response.headers["Date"] = get_current_date();
+        }
+
+        // Keep-Alive logic
+        bool keep_alive = false;
+        auto it = request.headers.find("Connection");
+        if (it != request.headers.end() && 
+            (it->second == "keep-alive" || it->second == "Keep-Alive")) {
+            keep_alive = true;
+            response.headers["Connection"] = "keep-alive";
+            response.headers["Keep-Alive"] = "timeout=5"; // optional
+        } else {
+            response.headers["Connection"] = "close";
+        }
+
+        string raw_response = encode_http_response(response);
+
+        ssize_t total_sent = 0;
+        ssize_t to_send = raw_response.size();
+        while (total_sent < to_send) {
+            ssize_t sent = send(client_fd, raw_response.c_str() + total_sent, to_send - total_sent, 0);
+            if (sent <= 0) break;
+            total_sent += sent;
+        }
+
+        if (!keep_alive) {
+            close(client_fd);
+            return;
+        }
+
+        // If keep-alive, continue the loop to read next request
     }
-
-    HTTPRequest request = decode_http_request(raw_request);
-
-    HTTPResponse response;
-    response.version = "HTTP/1.1";
-    response.status_code = 200;
-    response.reason_phrase = "OK";
-    response.headers["Content-Type"] = "text/plain";
-    response.headers["Connection"] = "close";
-    response.headers["Server"] = "ProductName/Version (Optional comment)";  // will fix this later
-
-    bool found = router.try_dispatch(request, response);
-    if (!found) {
-        response.status_code = 404;
-        response.reason_phrase = "Not Found";
-        response.body = "404 Not Found";
-    }
-
-    // Why AFTER try_dispatch? Because we cannot know the size of the 
-    // body until the handler (or the 404 logic) has finished filling it.
-    // Why we ALWAYS overwrite (no IF check): Protocol Safety. If the 
-    // Content-Length doesn't match the actual body size exactly, 
-    // the browser will hang or the connection will break.
-    response.headers["Content-Length"] = to_string(response.body.size());
-
-    // Why AFTER try_dispatch? Because we want the 'Date' to reflect the 
-    // exact moment the handler finished processing and the response is ready.
-    // Why the IF check? To respect the developer; if they manually set a 
-    // specific 'Date' in the handler, we don't want to overwrite their choice.
-    if (response.headers.find("Date") == response.headers.end()) {
-        response.headers["Date"] = get_current_date();
-    }
-
-    string raw_response = encode_http_response(response);
-
-    ssize_t total_sent = 0;
-    ssize_t to_send = raw_response.size();
-    while (total_sent < to_send) {
-        ssize_t sent = send(client_fd, raw_response.c_str() + total_sent, to_send - total_sent, 0);
-        if (sent <= 0) break;
-        total_sent += sent;
-    }
-
-    close(client_fd);
 }
