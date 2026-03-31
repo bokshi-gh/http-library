@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 ## Integrate Into Your Project
 
-- Example code is available in [**`examples/http_library_demo.cpp`**](examples/http_library_demo.cpp), demonstrating how to use the library
+- Example code is available in [**`examples/http_library_server_demo.cpp`**](examples/http_library_server_demo.cpp) and [**`examples/http_library_client_demo.cpp`**](examples/http_library_client_demo.cpp), demonstrating how to use the library
 
 - Include the header in your C++ project:
 
