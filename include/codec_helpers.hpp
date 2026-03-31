@@ -4,12 +4,14 @@
 
 #include <string>
 #include <regex>
+#include <cctype>
+#include <cstdlib>
+
 
 using namespace std;
 
 // Request
 void parse_request_target(HTTPRequest& req);
-void validate_request_target(const string& request_target);
 void normalize_request_target(HTTPRequest& req);
 void parse_request_line(HTTPRequest& req, const string& line);
 
@@ -18,4 +20,8 @@ void parse_response_line(HTTPResponse& res, const string& line);
 
 // Headers (generic for request/response)
 template<typename T>
-void parse_headers(T& msg, const string& headers_block);
+void parse_headers(T& object, const string& headers_block);
+
+// Body (generic for request/response)
+template<typename U>
+void parse_body(U& object, const string& raw, size_t body_start);
