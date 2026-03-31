@@ -59,36 +59,40 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
 
 void HTTPServer::handle_client(int client_fd) {
     char buffer[4096];
+    const int keep_alive_timeout = 5; // seconds
 
-    // Default timeout for keep-alive (in seconds)
-    const int keep_alive_timeout = 5;
-
-    // Loop to handle multiple requests per connection
     while (true) {
         string raw_request;
         ssize_t n = 0;
 
-        // Set a timeout for recv to avoid infinite blocking
+        // Set a timeout for recv (so it won't block forever)
         timeval tv{};
         tv.tv_sec = keep_alive_timeout;
         tv.tv_usec = 0;
         setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
 
-        // Receive request
+        // Read request headers
         while (true) {
             n = recv(client_fd, buffer, sizeof(buffer), 0);
             if (n < 0) {
-                perror("recv failed");
-                close(client_fd);
-                return;
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    // Timeout: close connection for keep-alive
+                    close(client_fd);
+                    return;
+                } else {
+                    perror("recv failed");
+                    close(client_fd);
+                    return;
+                }
             } else if (n == 0) {
-                // client closed connection
+                // Client closed connection
                 close(client_fd);
                 return;
             }
             raw_request.append(buffer, n);
         }
 
+        // Decode HTTP request
         HTTPRequest request;
         try {
             request = decode_http_request(raw_request.c_str());
@@ -100,6 +104,7 @@ void HTTPServer::handle_client(int client_fd) {
             return;
         }
 
+        // Prepare response
         HTTPResponse response;
         response.version = "HTTP/1.1";
         response.status_code = 200;
@@ -114,25 +119,25 @@ void HTTPServer::handle_client(int client_fd) {
             response.body = "404 Not Found";
         }
 
-        // Set Date if not provided
+        // Date header
         if (response.headers.find("Date") == response.headers.end()) {
             response.headers["Date"] = get_current_date();
         }
 
-        // Keep-Alive logic
+        // Determine if connection should be kept alive
         bool keep_alive = false;
         auto it = request.headers.find("Connection");
-        if (it != request.headers.end() && 
+        if (it != request.headers.end() &&
             (it->second == "keep-alive" || it->second == "Keep-Alive")) {
             keep_alive = true;
             response.headers["Connection"] = "keep-alive";
-            response.headers["Keep-Alive"] = "timeout=5"; // optional
+            response.headers["Keep-Alive"] = "timeout=" + to_string(keep_alive_timeout);
         } else {
             response.headers["Connection"] = "close";
         }
 
+        // Encode and send response
         string raw_response = encode_http_response(response);
-
         ssize_t total_sent = 0;
         ssize_t to_send = raw_response.size();
         while (total_sent < to_send) {
@@ -141,11 +146,12 @@ void HTTPServer::handle_client(int client_fd) {
             total_sent += sent;
         }
 
+        // If not keep-alive, close the socket
         if (!keep_alive) {
             close(client_fd);
             return;
         }
 
-        // If keep-alive, continue the loop to read next request
+        // If keep-alive, continue loop for next request
     }
 }
