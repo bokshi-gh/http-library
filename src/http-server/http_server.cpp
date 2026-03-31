@@ -87,9 +87,6 @@ void HTTPServer::handle_client(int client_fd) {
                 return;
             }
             raw_request.append(buffer, n);
-
-            // End of HTTP headers
-            if (raw_request.find("\r\n\r\n") != string::npos) break;
         }
 
         HTTPRequest request;
