@@ -94,7 +94,7 @@ void HTTPServer::handle_client(int client_fd) {
 
         HTTPRequest request;
         try {
-            request = decode_http_request(raw_request);
+            request = decode_http_request(raw_request.c_str);
         } catch (...) {
             // Bad request
             string bad_response = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
