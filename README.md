@@ -20,9 +20,9 @@ A lightweight C++ HTTP library for creating and handling HTTP requests and respo
 
 - Install via the installer script:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | sudo bash
-```
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts/install.sh | sudo bash
+  ```
 
 > Requirements: [cURL](https://curl.se/), [GNU Make](https://www.gnu.org/software/make/), and [GCC](https://gcc.gnu.org/)
 
@@ -36,9 +36,9 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 - Include the header in your C++ project:
 
-```c++
-#include <bokshi/http_library.hpp>
-```
+  ```c++
+  #include <bokshi/http_library.hpp>
+  ```
 
 - Link the library when compiling your project:
 
@@ -60,11 +60,11 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 - Remove the installed headers and library files from the system:
 
-```sh
-sudo rm -f /usr/local/include/bokshi/
-sudo rm -f /usr/local/lib/libhttp_library.a
-sudo ldconfig
-```
+  ```sh
+  sudo rm -f /usr/local/include/bokshi/
+  sudo rm -f /usr/local/lib/libhttp_library.a
+  sudo ldconfig
+  ```
 
 ---
 
