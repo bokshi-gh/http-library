@@ -10,8 +10,9 @@ A lightweight C++ HTTP library for creating and handling HTTP requests and respo
 
 - Create and handle HTTP requests and responses
 - Can be used as both an HTTP server and an HTTP client
-- Uses [this](https://github.com/bokshi-gh/http-codec) library to encode and decode HTTP requests and responses
-- Uses [this](https://github.com/bokshi-gh/dotenv-cpp) utility to directly load environment variables from a file
+- Uses [bokshi-gh/http-codec](https://github.com/bokshi-gh/http-codec) library to encode and decode HTTP requests and responses
+- Includes [nlohmann/json](https://github.com/nlohmann/json) for parsing and serializing JSON data
+- Includes [bokshi-gh/dotenv-cpp](https://github.com/bokshi-gh/dotenv-cpp) utility for loading environment variables directly from a file
 
 ---
 
