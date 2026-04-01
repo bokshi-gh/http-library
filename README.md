@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 ## Integrate Into Your Project
 
-- Example code is available in [**`examples/http_library_server_demo.cpp`**](examples/http_library_server_demo.cpp) and [**`examples/http_library_client_demo.cpp`**](examples/http_library_client_demo.cpp), demonstrating how to use the library
+- Example code demonstrating how to use the library is available in [**`examples/http_library_server_demo.cpp`**](examples/http_library_server_demo.cpp) and [**`examples/http_library_client_demo.cpp`**](examples/http_library_client_demo.cpp)
 
 - Include the header in your C++ project:
 
@@ -41,9 +41,17 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 
 - Link the library when compiling your project:
 
-```bash
-g++ main.cpp -lhttp_library -pthread -o my_server
-```
+  - If you need server, compile like:
+
+    ```bash
+    g++ main.cpp -lhttp_library -pthread -o my_server
+    ```
+
+  - If you only need client, compile like:
+
+    ```bash
+    g++ main.cpp -lhttp_library -o my_client
+    ```
 
 ---
 
