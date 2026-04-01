@@ -6,19 +6,19 @@ HTTPServer::~HTTPServer() {
     if (server_fd >= 0) close(server_fd);
 }
 
-void HTTPServer::get(const string& path, RouteHandler route_handler) {
+void HTTPServer::http_get(const string& path, RouteHandler route_handler) {
     router.register_handler("GET", path, route_handler);
 }
 
-void HTTPServer::post(const string& path, RouteHandler route_handler) {
+void HTTPServer::http_post(const string& path, RouteHandler route_handler) {
     router.register_handler("POST", path, route_handler);
 }
 
-void HTTPServer::put(const string& path, RouteHandler route_handler) {
+void HTTPServer::http_put(const string& path, RouteHandler route_handler) {
     router.register_handler("PUT", path, route_handler);
 }
 
-void HTTPServer::del(const string& path, RouteHandler route_handler) {
+void HTTPServer::http_delete(const string& path, RouteHandler route_handler) {
     router.register_handler("DELETE", path, route_handler);
 }
 
