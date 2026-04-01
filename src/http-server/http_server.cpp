@@ -58,85 +58,102 @@ void HTTPServer::listen(uint16_t port, function<void()> callback) {
 }
 
 void HTTPServer::handle_client(int client_fd) {
-    char buffer[4096];
     const int keep_alive_timeout = 5; // seconds
+    char buffer[4096];
+    ssize_t n = 0;
 
-    while (true) {
+    // Set recv timeout
+    timeval tv{};
+    tv.tv_sec = keep_alive_timeout;
+    tv.tv_usec = 0;
+    setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+
+    bool keep_alive = false;
+
+    do {
         string raw_request;
-        ssize_t n = 0;
+        size_t header_end = string::npos;
 
-        // Set a timeout for recv (so it won't block forever)
-        timeval tv{};
-        tv.tv_sec = keep_alive_timeout;
-        tv.tv_usec = 0;
-        setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
-
-        // Read request headers
-        while (true) {
+        while (header_end == string::npos) {
             n = recv(client_fd, buffer, sizeof(buffer), 0);
-            if (n < 0) {
-                if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                    // Timeout: close connection for keep-alive
-                    close(client_fd);
-                    return;
-                } else {
-                    perror("recv failed");
-                    close(client_fd);
-                    return;
-                }
-            } else if (n == 0) {
-                // Client closed connection
-                close(client_fd);
-                return;
-            }
+            if (n <= 0) { close(client_fd); return; }
             raw_request.append(buffer, n);
+            header_end = raw_request.find("\r\n\r\n");
         }
 
-        // Decode HTTP request
+        string header_block = raw_request.substr(0, header_end + 4);
+
+        // Decode request headers
         HTTPRequest request;
         try {
-            request = decode_http_request(raw_request.c_str());
+            request = decode_http_request(header_block.c_str());
         } catch (...) {
-            // Bad request
             string bad_response = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
             send(client_fd, bad_response.c_str(), bad_response.size(), 0);
             close(client_fd);
             return;
         }
 
-        // Prepare response
+        // Read body only if Content-Length exists and method allows it
+        size_t body_start = header_end + 4;
+        if (request.method != "GET" && request.method != "HEAD") {
+            auto cl_it = request.headers.find("Content-Length");
+            if (cl_it != request.headers.end()) {
+                size_t content_length = 0;
+                try { content_length = std::stoul(cl_it->second[0]); } catch (...) {
+                    string bad_response = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+                    send(client_fd, bad_response.c_str(), bad_response.size(), 0);
+                    close(client_fd);
+                    return;
+                }
+
+                // Read exact Content-Length bytes
+                while (raw_request.size() - body_start < content_length) {
+                    n = recv(client_fd, buffer, sizeof(buffer), 0);
+                    if (n <= 0) {
+                        string bad_response = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+                        send(client_fd, bad_response.c_str(), bad_response.size(), 0);
+                        close(client_fd);
+                        return;
+                    }
+                    raw_request.append(buffer, n);
+                }
+
+                request.body = raw_request.substr(body_start, content_length);
+            }
+        }
+
         HTTPResponse response;
         response.version = "HTTP/1.1";
         response.status_code = 200;
         response.reason_phrase = "OK";
-        response.headers["Content-Type"] = "text/plain";
-        response.headers["Server"] = "ProductName/Version";
+        response.headers["Content-Type"] = {"text/plain"};
+        response.headers["Server"] = {"ProductName/Version"};
 
         bool found = router.try_dispatch(request, response);
         if (!found) {
-            response.status_code = 404;
-            response.reason_phrase = "Not Found";
-            response.body = "404 Not Found";
+            string not_found_response = "HTTP/1.1 404 Not Found\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+            send(client_fd, not_found_response.c_str(), not_found_response.size(), 0);
+            close(client_fd);
+            return;
         }
 
-        // Date header
+        response.headers["Content-Length"] = { std::to_string(response.body.size()) };
         if (response.headers.find("Date") == response.headers.end()) {
-            response.headers["Date"] = get_current_date();
+            response.headers["Date"] = { get_current_date() };
         }
 
-        // Determine if connection should be kept alive
-        bool keep_alive = false;
-        auto it = request.headers.find("Connection");
-        if (it != request.headers.end() &&
-            (it->second == "keep-alive" || it->second == "Keep-Alive")) {
+        keep_alive = false;
+        auto conn_it = request.headers.find("Connection");
+        if (conn_it != request.headers.end() &&
+            (conn_it->second[0] == "keep-alive" || conn_it->second[0] == "Keep-Alive")) {
             keep_alive = true;
-            response.headers["Connection"] = "keep-alive";
-            response.headers["Keep-Alive"] = "timeout=" + to_string(keep_alive_timeout);
+            response.headers["Connection"] = {"keep-alive"};
+            response.headers["Keep-Alive"] = {"timeout=" + std::to_string(keep_alive_timeout)};
         } else {
-            response.headers["Connection"] = "close";
+            response.headers["Connection"] = {"close"};
         }
 
-        // Encode and send response
         string raw_response = encode_http_response(response);
         ssize_t total_sent = 0;
         ssize_t to_send = raw_response.size();
@@ -146,12 +163,9 @@ void HTTPServer::handle_client(int client_fd) {
             total_sent += sent;
         }
 
-        // If not keep-alive, close the socket
-        if (!keep_alive) {
-            close(client_fd);
-            return;
-        }
+        if (!keep_alive) break;
 
-        // If keep-alive, continue loop for next request
-    }
+    } while (keep_alive);
+
+    close(client_fd);
 }
