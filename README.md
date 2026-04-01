@@ -60,7 +60,7 @@ curl -fsSL https://raw.githubusercontent.com/bokshi-gh/http-library/main/scripts
 - Remove the installed headers and library files from the system:
 
 ```sh
-sudo rm -f /usr/local/include/bokshi/*.hpp
+sudo rm -f /usr/local/include/bokshi/
 sudo rm -f /usr/local/lib/libhttp_library.a
 sudo ldconfig
 ```
