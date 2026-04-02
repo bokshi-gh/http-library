@@ -12,7 +12,7 @@
 
 struct URL {
     std::string scheme;
-    std::string host;
+    std::string host;   // domain or IP (IPv4 / IPv6)
     std::string port;
     std::string path;
     std::string query;

@@ -3,5 +3,6 @@
 #include "http_client.hpp"
 
 #include <string>
+#include <cctype>
 
 URL parse_url(const std::string& url);
