@@ -1,6 +1,7 @@
 #pragma once
 
 #include "http_client.hpp"
+#include "http_client_helpers.hpp"
 
 #include <string>
 #include <cctype>
