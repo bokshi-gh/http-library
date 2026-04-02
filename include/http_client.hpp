@@ -3,10 +3,20 @@
 #include "http_codec.hpp"
 
 #include <string>
+#include <iostream>
 #include <unordered_map>
-#include <netinet/in.h>
-#include <sys/socket.h>
+#include <cstring>
 #include <unistd.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
+struct URL {
+    std::string scheme;
+    std::string host;
+    std::string port;
+    std::string path;
+    std::string query;
+};
 
 using namespace std;
 
