@@ -2,32 +2,44 @@
 
 #include <stdexcept>
 
-void validate_path(const std::string& path) {
-    if (path.empty() || path[0] != '/') {
-        throw std::invalid_argument("Invalid route path: " + path + " (must start with '/')");
+bool match_route(const std::string& route_path,
+                 const std::string& request_path,
+                 HTTPRequest& request) {
+
+    // Special case: root must match only root
+    if (route_path == "/") {
+        return request_path == "/";
     }
-}
 
-std::string normalize_path(const std::string& path) {
-    std::string normalized_path = path;
-    while (normalized_path.size() > 1 && normalized_path.back() == '/') {
-        normalized_path.pop_back();
+    std::vector<std::string> route_parts;
+    std::vector<std::string> request_parts;
+
+    std::stringstream rs(route_path), qs(request_path);
+    std::string segment;
+
+    while (getline(rs, segment, '/')) {
+        if (!segment.empty()) route_parts.push_back(segment);
     }
-    return normalized_path;
-}
 
-bool match_route(const std::string& route_path, const std::string& request_path, HTTPRequest& request) {
-    std::stringstream route_stream(route_path), request_stream(request_path);
-    std::string route_segment, request_segment;
+    while (getline(qs, segment, '/')) {
+        if (!segment.empty()) request_parts.push_back(segment);
+    }
 
-    while (getline(route_stream, route_segment, '/') && getline(request_stream, request_segment, '/')) {
-        if (!route_segment.empty() && route_segment[0] == ':') {
-            // Dynamic parameter
-            request.parameters[route_segment.substr(1)] = request_segment;
-        } else if (route_segment != request_segment) {
+    // 🚨 Critical: must have same number of segments
+    if (route_parts.size() != request_parts.size()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < route_parts.size(); i++) {
+        const auto& route_seg = route_parts[i];
+        const auto& req_seg = request_parts[i];
+
+        if (!route_seg.empty() && route_seg[0] == ':') {
+            request.parameters[route_seg.substr(1)] = req_seg;
+        } else if (route_seg != req_seg) {
             return false;
         }
     }
 
-    return route_stream.eof() && request_stream.eof();
+    return true;
 }
