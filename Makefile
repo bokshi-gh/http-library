@@ -6,7 +6,9 @@ SRC = \
 	src/http-server/http_server.cpp \
 	src/http-server/http_server_helpers.cpp \
 	src/http-server/router/router.cpp \
-	src/http-server/router/router_helpers.cpp
+	src/http-server/router/router_helpers.cpp \
+	src/http-client/http_client.cpp \
+	src/http-client/http_client_helpers.cpp 
 
 OBJ = $(SRC:.cpp=.o)
 

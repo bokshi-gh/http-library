@@ -1,6 +1,4 @@
 #include "http_client_helpers.hpp"
-#include <cctype>
-#include <stdexcept>
 
 URL parse_url(const std::string& url) {
     URL result;
