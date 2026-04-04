@@ -2,6 +2,12 @@
 
 #include <stdexcept>
 
+void validate_path(const std::string& path) {
+    if (path.empty() || path[0] != '/') {
+        throw std::invalid_argument("Invalid route path: " + path + " (must start with '/')");
+    }
+}
+
 bool match_route(const std::string& route_path,
                  const std::string& request_path,
                  HTTPRequest& request) {
