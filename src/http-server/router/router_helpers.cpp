@@ -25,7 +25,7 @@ bool match_route(const std::string& route_path,
         if (!segment.empty()) request_parts.push_back(segment);
     }
 
-    // 🚨 Critical: must have same number of segments
+    // Critical: must have same number of segments
     if (route_parts.size() != request_parts.size()) {
         return false;
     }
