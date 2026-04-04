@@ -30,5 +30,5 @@ public:
     static HTTPResponse http_delete(const string& url, const unordered_map<string, string>& headers, const string& body);
 
 private:
-    HTTPResponse execute_request(const HTTPRequest& req, const std::string& host, const std::string& port);
-}
+    static HTTPResponse execute_request(const HTTPRequest& req, const std::string& host, const std::string& port);
+};

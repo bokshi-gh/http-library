@@ -1,7 +1,7 @@
 #include "http_client.hpp"
 #include "http_client_helpers.hpp"
 
-HTTPClient::HTTPResponse execute_request(const HTTPRequest& req,
+HTTPResponse HTTPClient::execute_request(const HTTPRequest& req,
                                     const std::string& host,
                                     const std::string& port) {
 
