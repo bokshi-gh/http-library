@@ -1,58 +1,171 @@
 #include "http_client.hpp"
+#include "http_client_helpers.hpp"
 
-HTTPResponse HTTPClient::http_get(const string& url, const unordered_map<string, string>& headers) {
-     
-}
+HTTPResponse execute_request(const HTTPRequest& req,
+                                    const std::string& host,
+                                    const std::string& port) {
 
-int main() {
-    const char* host = "example.com";  // raw host
-    const char* port = "80";           // raw port
-
-    // check schmea if none make http if https error not suported if other err invalid schmea
-
-    // 1. Resolve host
     struct addrinfo hints{}, *res;
-    hints.ai_family = AF_UNSPEC;       // IPv4 or IPv6
+
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if (getaddrinfo(host, port, &hints, &res) != 0) {
-        std::cerr << "Failed to resolve host\n";
-        return 1;
+    if (getaddrinfo(host.c_str(), port.c_str(), &hints, &res) != 0) {
+        throw std::runtime_error("DNS resolution failed");
     }
 
-    // 2. Create socket
     int sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (sockfd < 0) {
-        std::cerr << "Socket creation failed\n";
         freeaddrinfo(res);
-        return 1;
+        throw std::runtime_error("Socket creation failed");
     }
 
-    // 3. Connect
-    if (::connect(sockfd, res->ai_addr, res->ai_addrlen) != 0) {
-        std::cerr << "Connection failed\n";
+    if (connect(sockfd, res->ai_addr, res->ai_addrlen) != 0) {
         close(sockfd);
         freeaddrinfo(res);
-        return 1;
+        throw std::runtime_error("Connection failed");
     }
 
     freeaddrinfo(res);
 
-    // 4. Raw HTTP GET request (hardcoded path)
-    const char* request =
-        "GET / HTTP/1.1\r\n"
-        "Host: example.com\r\n"
-        "Connection: close\r\n\r\n";
+    // Encode request
+    std::string raw_request = encode_http_request(req);
 
-    send(sockfd, request, strlen(request), 0);
+    // Send FULL request
+    size_t total_sent = 0;
+    while (total_sent < raw_request.size()) {
+        ssize_t sent = send(sockfd,
+                            raw_request.c_str() + total_sent,
+                            raw_request.size() - total_sent,
+                            0);
 
-    // 5. Receive raw response
+        if (sent <= 0) {
+            close(sockfd);
+            throw std::runtime_error("Send failed");
+        }
+
+        total_sent += sent;
+    }
+
+    // Receive FULL response
+    std::string raw_response;
     char buffer[4096];
-    int bytes;
+
+    ssize_t bytes;
     while ((bytes = recv(sockfd, buffer, sizeof(buffer), 0)) > 0) {
-        std::cout.write(buffer, bytes);
+        raw_response.append(buffer, bytes);
     }
 
     close(sockfd);
-    return 0;
+
+    // Decode response
+    return decode_http_response(raw_response.c_str());
+}
+
+HTTPResponse HTTPClient::http_get(const std::string& url_str,
+                                  const std::unordered_map<std::string, std::string>& headers) {
+
+    URL url = parse_url(url_str);
+
+    if (url.scheme != "http") {
+        throw std::runtime_error("Only HTTP supported");
+    }
+
+    HTTPRequest req;
+    req.method = "GET";
+    req.request_target = build_target(url);
+    req.version = "HTTP/1.1";
+
+    req.headers["host"] = {url.host};
+    req.headers["connection"] = {"close"};
+
+    for (auto& h : headers) {
+        req.headers[h.first] = {h.second};
+    }
+
+    return execute_request(req, url.host, url.port);
+}
+
+HTTPResponse HTTPClient::http_post(const std::string& url_str,
+                                   const std::unordered_map<std::string, std::string>& headers,
+                                   const std::string& body) {
+
+    URL url = parse_url(url_str);
+
+    if (url.scheme != "http") {
+        throw std::runtime_error("Only HTTP supported");
+    }
+
+    HTTPRequest req;
+    req.method = "POST";
+    req.request_target = build_target(url);
+    req.version = "HTTP/1.1";
+    req.body = body;
+
+    req.headers["host"] = {url.host};
+    req.headers["connection"] = {"close"};
+    req.headers["content-length"] = {std::to_string(body.size())};
+
+    for (auto& h : headers) {
+        req.headers[h.first] = {h.second};
+    }
+
+    return execute_request(req, url.host, url.port);
+}
+
+HTTPResponse HTTPClient::http_put(const std::string& url_str,
+                                  const std::unordered_map<std::string, std::string>& headers,
+                                  const std::string& body) {
+
+    URL url = parse_url(url_str);
+
+    if (url.scheme != "http") {
+        throw std::runtime_error("Only HTTP supported");
+    }
+
+    HTTPRequest req;
+    req.method = "PUT";
+    req.request_target = build_target(url);
+    req.version = "HTTP/1.1";
+    req.body = body;
+
+    req.headers["host"] = {url.host};
+    req.headers["connection"] = {"close"};
+    req.headers["content-length"] = {std::to_string(body.size())};
+
+    for (auto& h : headers) {
+        req.headers[h.first] = {h.second};
+    }
+
+    return execute_request(req, url.host, url.port);
+}
+
+HTTPResponse HTTPClient::http_delete(const std::string& url_str,
+                                     const std::unordered_map<std::string, std::string>& headers,
+                                     const std::string& body) {
+
+    URL url = parse_url(url_str);
+
+    if (url.scheme != "http") {
+        throw std::runtime_error("Only HTTP supported");
+    }
+
+    HTTPRequest req;
+    req.method = "DELETE";
+    req.request_target = build_target(url);
+    req.version = "HTTP/1.1";
+    req.body = body;
+
+    req.headers["host"] = {url.host};
+    req.headers["connection"] = {"close"};
+
+    if (!body.empty()) {
+        req.headers["content-length"] = {std::to_string(body.size())};
+    }
+
+    for (auto& h : headers) {
+        req.headers[h.first] = {h.second};
+    }
+
+    return execute_request(req, url.host, url.port);
 }

@@ -7,3 +7,4 @@
 #include <cctype>
 
 URL parse_url(const std::string& url);
+std::string build_target(const URL& url);
